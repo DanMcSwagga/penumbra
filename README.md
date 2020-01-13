@@ -2,8 +2,9 @@
 
 <p align="center">
   Web-based system for interactive work with 3D objects.
-  Using <b>Vue.js @3.5.3</b>, <b>Three.js</b> and <b>Node.js</b>.
+  Using <b>Vue.js</b>, <b>Three.js</b> and <b>Node.js</b>.
 </p>
+<br />
 <p align="center">
 
 __________
@@ -13,7 +14,6 @@ __________
 
 * [Demo/Site](#demo)
 * [Layout](#layout)
-* [Version](#version)
 * [Quick start](#quick-start)
 * [Supported Browsers](#supported-browsers)
 * [Contact](#contact)
@@ -26,10 +26,6 @@ __________
 # Layout
 
 <i>To be added soon</i>
-
-# Version
-
-- Vue 3.5.3
 
 # Quick start
 
