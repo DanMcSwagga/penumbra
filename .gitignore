@@ -19,3 +19,9 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# file copies (intended for development purposes)
+*copy*.vue
+
+#public static objects (early development circles)
+public/static

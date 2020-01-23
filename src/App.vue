@@ -1,20 +1,35 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link>|
-      <router-link to="/about">About</router-link>|
-      <router-link to="/scene">Scene</router-link>
-    </div>
+    <!-- <div id="nav"> -->
+    <!-- <router-link to="/">Viewer</router-link> -->
+    <!-- </div> -->
     <router-view />
   </div>
 </template>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Raleway', sans-serif;
+  background: #f5f5f5;
+  height: 100%;
+  // overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.no-display {
+  display: none;
+}
+.display {
+  display: block;
+}
+
+.fixed {
+  position: fixed;
 }
 </style>
