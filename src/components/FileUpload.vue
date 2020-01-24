@@ -86,10 +86,7 @@ export default {
       console.dir(fileURL)
       console.dir(rootPath)
       console.dir(fileMap)
-      // this.$state.commit
       this.$store.dispatch('passLoadToViewer', { fileURL, rootPath, fileMap })
-
-      // TODO: move Load() from Viewer to store
 
       // viewer
       // .load(fileURL, rootPath, fileMap)

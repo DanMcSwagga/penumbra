@@ -18,6 +18,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import { Vector3 } from 'three'
 
 export default {
   name: 'viewer',
@@ -36,52 +37,43 @@ export default {
       camera: null,
       scene: null,
       renderer: null,
-      light: null,
+      lights: [],
 
       controls: null,
+      content: null,
 
       clock: null,
-      mixer: null,
+      mixer: null
 
-      objectURL: '/static/elephant_lowpoly.fbx'
+      // pmremGenerator: null
     }
   },
 
   methods: {
-    logData() {
-      console.log('logging this.data')
-      console.dir(this.$data)
-      console.log('logging file data')
-      console.dir(this.fileData)
-    },
-
     init() {
       const el = document.getElementById('viewer')
-      this.camera = new THREE.PerspectiveCamera(
-        70,
-        el.clientWidth / el.clientHeight,
-        0.1,
-        1000
-      )
-      this.camera.position.set(100, 200, 300)
 
-      // Scene and Lighting
+      // Scene
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color(0xa0a0a0)
       this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000)
 
-      this.light = new THREE.HemisphereLight(0xffffff, 0x444444)
-      this.light.position.set(0, 200, 0)
-      this.scene.add(this.light)
+      // Lighting
+      let light = new THREE.HemisphereLight(0xffffff, 0x444444)
+      light.position.set(0, 200, 0)
+      this.lights.push(light)
+      // this.scene.add(light)
 
-      this.light = new THREE.DirectionalLight(0xffffff)
-      this.light.position.set(0, 200, 100)
-      this.light.castShadow = true
-      this.light.shadow.camera.top = 180
-      this.light.shadow.camera.bottom = -100
-      this.light.shadow.camera.left = -120
-      this.light.shadow.camera.right = 120
-      this.scene.add(this.light)
+      light = new THREE.DirectionalLight(0xffffff)
+      light.position.set(0, 200, 100)
+      light.castShadow = true
+      light.shadow.camera.top = 180
+      light.shadow.camera.bottom = -100
+      light.shadow.camera.left = -120
+      light.shadow.camera.right = 120
+      this.lights.push(light)
+      // this.scene.add(light)
+      this.scene.add(...this.lights)
 
       // Ground
       let mesh = new THREE.Mesh(
@@ -92,69 +84,58 @@ export default {
       mesh.receiveShadow = true
       this.scene.add(mesh)
 
+      // Grid
       let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000)
       grid.material.opacity = 0.2
       grid.material.transparent = true
       this.scene.add(grid)
 
-      // // model
-      // let loader = new FBXLoader()
-      // loader.load(
-      //   this.objectURL,
-      //   object => {
-      //     this.mixer = new THREE.AnimationMixer(object)
-
-      //     let action = this.mixer.clipAction(object.animations[0])
-      //     action.play()
-
-      //     object.traverse(child => {
-      //       if (child.isMesh) {
-      //         child.castShadow = true
-      //         child.receiveShadow = true
-      //       }
-      //     })
-      //     console.log('logging object')
-      //     console.dir({ object })
-
-      //     this.scene.add(object)
-      //   },
-      //   progressmsg => {
-      //     console.log('>>> On progress load handler:')
-      //     console.log(progressmsg)
-      //   },
-      //   error => {
-      //     console.log('>>> On error load handler:')
-      //     console.log(error)
-      //   }
-      // )
+      // Camera
+      // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
+      this.camera = new THREE.PerspectiveCamera(
+        60, // fov
+        el.clientWidth / el.clientHeight,
+        0.01,
+        1000
+      )
 
       // Renderer
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
+      // // TODO: Needed or nah?
+      // this.renderer.physicallyCorrectLights = true
+      // this.renderer.outputEncoding = THREE.sRGBEncoding
+      this.renderer.setClearColor(0xcccccc)
       this.renderer.setPixelRatio(window.devicePixelRatio) //
       this.renderer.setSize(el.clientWidth, el.clientHeight)
-      this.renderer.shadowMap.enabled = true //
-      el.appendChild(this.renderer.domElement)
+      // this.renderer.shadowMap.enabled = true //
+
+      // // TODO: PmremGenerator | Texture roughness values
+      // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
+      // this.pmremGenerator.compileEquirectangularShader()
 
       // Controls
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-      this.controls.target.set(0, 100, 0)
-      this.controls.update()
+      // // TODO: optional - auto rotation using controls
+      // this.controls.autoRotate = false
+      // this.controls.autoRotateSpeed = -5
+      // this.controls.screenSpacePanning = true
+
+      el.appendChild(this.renderer.domElement)
+
+      //
+
+      requestAnimationFrame(this.animate) // TODO: needed ?
 
       // Resize resolution workaround
       el.addEventListener('resize', this.onWindowResize.bind(null, el), false)
     },
 
-    onWindowResize(window) {
-      this.camera.aspect = window.clientWidth / window.clientHeight
-      this.camera.updateProjectionMatrix()
-
-      this.renderer.setSize(window.clientWidth, window.clientHeight)
-    },
-
     animate() {
       requestAnimationFrame(this.animate)
 
-      let delta = this.clock.getDelta()
+      const delta = this.clock.getDelta()
+
+      this.controls.update()
       if (this.mixer) this.mixer.update(delta)
 
       // this.renderer.render(this.scene, this.camera)
@@ -168,6 +149,13 @@ export default {
       //   this.axesCamera.lookAt(this.axesScene.position)
       //   this.axesRenderer.render( this.axesScene, this.axesCamera );
       // }
+    },
+
+    onWindowResize(window) {
+      this.camera.aspect = window.clientWidth / window.clientHeight
+      this.camera.updateProjectionMatrix()
+
+      this.renderer.setSize(window.clientWidth, window.clientHeight)
     },
 
     // Loading from file
@@ -237,12 +225,20 @@ export default {
       })
     },
 
+    /**
+     * object = Scene object
+     */
     setContent(object, clips) {
       // this.clear();
 
       const box = new THREE.Box3().setFromObject(object)
       const size = box.getSize(new THREE.Vector3()).length()
       const center = box.getCenter(new THREE.Vector3())
+
+      console.log('in setContent:')
+      console.dir(object)
+      console.dir(object.children[0])
+      console.dir(this.camera)
 
       // this.controls.reset()
 
@@ -252,8 +248,8 @@ export default {
 
       // this.controls.maxDistance = size * 10
 
-      this.camera.near = size / 100
-      this.camera.far = size * 100
+      this.camera.near = size / 1000 // 100
+      this.camera.far = size * 1000 // 100
       this.camera.updateProjectionMatrix()
 
       // if (this.options.cameraPosition) {
@@ -267,7 +263,7 @@ export default {
       this.camera.lookAt(center)
       // }
 
-      // this.setCamera(DEFAULT_CAMERA)
+      // this.setCamera()
 
       // this.axesCamera.position.copy(this.camera.position)
       // this.axesCamera.lookAt(this.axesScene.position)
@@ -277,13 +273,17 @@ export default {
       // this.axesCorner.scale.set(size, size, size)
 
       // this.controls.saveState()
+      // object.scale = new THREE.Vector3(100, 100, 100)
 
       this.scene.add(object)
+      this.content = object
     }
   },
 
   watch: {
     // TODO: isLoaded even needed??
+
+    // TODO: move Load() from Viewer to store ??
 
     fileURL: function() {
       this.clock = new THREE.Clock()
