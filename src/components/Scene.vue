@@ -151,17 +151,12 @@ export default {
 
     // Loading from file
     loadModel() {
-      console.log('in scene.load:')
-      console.dir(this.fileURL)
-      console.dir(this.rootPath)
-      console.dir(this.fileMap)
-
       // TODO: Only load needed THREE components manually
+
+      // e.g. in dev mode it is always http://localhost:8080/
       const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
-      console.log('in scene.load baseURL:', baseURL)
 
       // Load
-      // return new Promise((resolve, reject) => {
       return new Promise((resolve, reject) => {
         const manager = new THREE.LoadingManager()
 
@@ -201,8 +196,6 @@ export default {
             // TODO: thoroughly check this function
             this.setContent(scene, clips)
 
-            console.log('in scene.load blobURLs:')
-            console.dir(blobURLs)
             blobURLs.forEach(URL.revokeObjectURL)
 
             // See: https://github.com/google/draco/issues/349
@@ -225,11 +218,6 @@ export default {
       const box = new THREE.Box3().setFromObject(object)
       const size = box.getSize(new THREE.Vector3()).length()
       const center = box.getCenter(new THREE.Vector3())
-
-      console.log('in setContent:')
-      console.dir(object)
-      console.dir(object.children[0])
-      console.dir(this.camera)
 
       // this.controls.reset()
 

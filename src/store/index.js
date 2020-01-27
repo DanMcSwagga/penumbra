@@ -30,13 +30,22 @@ export default new Vuex.Store({
       state.fileURL = fileURL
       state.rootPath = rootPath
       state.fileMap = fileMap
+    },
+    resetFileData: state => {
+      state.fileURL = ''
+      state.rootPath = ''
+      state.fileMap = null
     }
   },
   actions: {
-    saveFileData({ commit }, fileData) {
+    saveFile({ commit }, fileData) {
       console.log('~~~ Saving file data to global state...')
-      console.dir(fileData)
+      // console.dir(fileData)
       commit('setFileData', fileData)
+    },
+    resetFile({ commit }) {
+      console.log('~~~ Resetting file data to prepare for new model...')
+      commit('resetFileData')
     }
   },
   modules: {}

@@ -1,36 +1,13 @@
 <template>
-  <div id="viewer" class="viewer">
+  <main id="viewer" class="viewer">
     <GUI />
-    <!-- TODO: needed? -->
-    <main class="viewer-container">
+    <div class="dropzone" id="dropzone" :ref="'dropzone'">
       <Scene :class="{ 'no-display': !isLoaded }" />
-      <!-- <Dropzone /> -->
-      <div
-        class="dropzone"
-        :ref="'dropzone'"
-        :class="{ 'no-display': isLoaded }"
-      >
-        <div class="placeholder">
-          <div class="placeholder-label">
-            <p>Drag glTF 2.0 file or folder here</p>
-          </div>
-          <div class="upload-btn">
-            <input
-              type="file"
-              name="file-input[]"
-              id="file-input"
-              multiple=""
-              :ref="'file-input'"
-            />
-            <label for="file-input">
-              <span>Upload</span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="spinner" v-if="showSpinner" :ref="'spinner'"></div>
-    </main>
-  </div>
+      <!-- TODO: create a separate component just for placeholder -->
+      <UploadPlaceholder :class="{ 'no-display': isLoaded }" />
+    </div>
+    <div class="spinner" v-if="showSpinner" :ref="'spinner'"></div>
+  </main>
 </template>
 
 <script>
@@ -39,15 +16,16 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { SimpleDropzone } from 'simple-dropzone'
 
 import GUI from '@/components/GUI.vue'
-// import FileUpload from '@/components/FileUpload.vue'
 import Scene from '@/components/Scene.vue'
+import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 
 export default {
   name: 'viewer',
 
   components: {
     GUI,
-    Scene
+    Scene,
+    UploadPlaceholder
   },
 
   computed: {
@@ -62,12 +40,14 @@ export default {
 
   mounted() {
     const dropzoneController = new SimpleDropzone(
-      this.$refs['dropzone'],
-      this.$refs['file-input']
+      // this.$refs['dropzone'],
+      // this.$refs['file-input'] // now is in a child component
+      document.getElementById('dropzone'),
+      document.getElementById('file-input')
     )
     const self = this
     dropzoneController
-      .on('drop', ({ files }) => this.load(files))
+      .on('drop', ({ files }) => self.load(files))
       .on('dropstart', () => self.$store.commit('activateSpinner'))
       .on('droperror', () => self.$store.commit('deactivateSpinner'))
   },
@@ -78,7 +58,7 @@ export default {
       let rootFile
       let rootPath
 
-      console.log('List of file(s)...')
+      console.log('Map of file(s)...')
       console.dir(fileMap)
       // if (Object.entries(fileMap).length === 1) {
       // }
@@ -106,7 +86,7 @@ export default {
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
       // Save fileUrl, rootPath and fileMap to global $store state
-      this.$store.dispatch('saveFileData', { fileURL, rootPath, fileMap })
+      this.$store.dispatch('saveFile', { fileURL, rootPath, fileMap })
 
       this.isLoaded = true
     },
@@ -135,16 +115,6 @@ export default {
   width: 100vw;
   flex-grow: 1;
   position: relative;
-}
-
-.viewer-container {
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  flex-grow: 1;
-  position: relative;
-  justify-content: center;
-  align-items: center;
 }
 
 .dropzone {
