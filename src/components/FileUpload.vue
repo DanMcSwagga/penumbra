@@ -1,5 +1,5 @@
 <template>
-  <div class="file-upload">
+  <div class="file-upload" :class="{ loaded: isLoaded }">
     <div class="dropzone" :ref="'dropzone'">
       <div class="placeholder">
         <p>Drag glTF 2.0 file or folder here</p>
@@ -117,6 +117,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  flex-grow: 1;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
 .dropzone {
   display: flex;
   flex-grow: 1;
@@ -137,6 +147,10 @@ export default {
     font-size: 1.2rem;
     color: #999;
   }
+}
+
+.loaded {
+  visibility: hidden;
 }
 
 /******************************************************************************

@@ -1,13 +1,11 @@
 <template>
-  <div id="header" class="header">
-    <header>
-      <h1 class="item"><a href="/">3D Model Viewer</a></h1>
-      <span class="separator"> | </span>
-      <button class="item" @click="isLoaded = true" v-if="!isLoaded">
-        Start
-      </button>
-    </header>
-  </div>
+  <header>
+    <h1 class="item"><a href="/">3D Model Viewer</a></h1>
+    <span class="separator"> | </span>
+    <button class="item" @click="isLoaded = true" v-if="!isLoaded">
+      Start
+    </button>
+  </header>
 </template>
 
 <script>

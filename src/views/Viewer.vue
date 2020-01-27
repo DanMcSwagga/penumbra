@@ -1,17 +1,17 @@
 <template>
-  <div id="viewer" class="viewer" ref="viewer">
-    <main class="uploader-wrapper">
-      <ViewerHeader />
-      <FileUpload />
-    </main>
-  </div>
+  <main id="viewer" class="viewer" :ref="'viewer'">
+    <!-- <ViewerHeader /> -->
+    <GUI />
+    <FileUpload />
+  </main>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
+import GUI from '@/components/GUI.vue'
+// import ViewerHeader from '@/components/ViewerHeader.vue'
 import FileUpload from '@/components/FileUpload.vue'
-import ViewerHeader from '@/components/ViewerHeader.vue'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -24,7 +24,8 @@ export default {
   name: 'viewer',
 
   components: {
-    ViewerHeader,
+    GUI,
+    // ViewerHeader,
     FileUpload
   },
 
@@ -51,7 +52,8 @@ export default {
 
   methods: {
     init() {
-      const el = document.getElementById('viewer')
+      // const el = document.getElementById('viewer')
+      const el = this.$refs['viewer']
 
       // Scene
       this.scene = new THREE.Scene()
@@ -75,17 +77,17 @@ export default {
       // this.scene.add(light)
       this.scene.add(...this.lights)
 
-      // Ground
-      let mesh = new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(2000, 2000),
-        new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
-      )
-      mesh.rotation.x = -Math.PI / 2
-      mesh.receiveShadow = true
-      this.scene.add(mesh)
+      // // Ground
+      // let mesh = new THREE.Mesh(
+      //   new THREE.PlaneBufferGeometry(2000, 2000),
+      //   new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
+      // )
+      // mesh.rotation.x = -Math.PI / 2
+      // mesh.receiveShadow = true
+      // this.scene.add(mesh)
 
       // Grid
-      let grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000)
+      let grid = new THREE.GridHelper(20, 20, 0x000000, 0x000000)
       grid.material.opacity = 0.2
       grid.material.transparent = true
       this.scene.add(grid)
@@ -317,15 +319,9 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .viewer {
-  width: 100vw;
-  height: 100vh;
-}
-
-.uploader-wrapper {
   display: flex;
-  flex-direction: column;
   width: 100vw;
   flex-grow: 1;
   position: relative;
