@@ -7,7 +7,6 @@ export default new Vuex.Store({
   state: {
     // isLoaded: false,
     showSpinner: false,
-    showDropzone: true,
 
     // File loading stuff
     fileURL: '',

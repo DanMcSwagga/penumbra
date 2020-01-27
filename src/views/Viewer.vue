@@ -29,7 +29,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['showSpinner', 'showDropzone'])
+    ...mapState(['showSpinner'])
   },
 
   data() {
