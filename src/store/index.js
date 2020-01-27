@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    isLoaded: false,
+    // isLoaded: false,
     showSpinner: false,
     showDropzone: true,
 

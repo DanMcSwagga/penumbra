@@ -39,14 +39,16 @@ body {
 }
 
 .no-display {
-  display: none;
+  display: none !important;
 }
 .display {
   display: block;
 }
-
 .fixed {
   position: fixed;
+}
+.hidden {
+  visibility: hidden;
 }
 
 .app {

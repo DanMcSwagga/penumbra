@@ -1,319 +1,153 @@
 <template>
-  <main id="viewer" class="viewer" :ref="'viewer'">
-    <!-- <ViewerHeader /> -->
+  <div id="viewer" class="viewer">
     <GUI />
-    <FileUpload />
-  </main>
+    <!-- TODO: needed? -->
+    <main class="viewer-container">
+      <Scene :class="{ 'no-display': !isLoaded }" />
+      <!-- <Dropzone /> -->
+      <div
+        class="dropzone"
+        :ref="'dropzone'"
+        :class="{ 'no-display': isLoaded }"
+      >
+        <div class="placeholder">
+          <div class="placeholder-label">
+            <p>Drag glTF 2.0 file or folder here</p>
+          </div>
+          <div class="upload-btn">
+            <input
+              type="file"
+              name="file-input[]"
+              id="file-input"
+              multiple=""
+              :ref="'file-input'"
+            />
+            <label for="file-input">
+              <span>Upload</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="spinner" v-if="showSpinner" :ref="'spinner'"></div>
+    </main>
+  </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
-import GUI from '@/components/GUI.vue'
-// import ViewerHeader from '@/components/ViewerHeader.vue'
-import FileUpload from '@/components/FileUpload.vue'
+import { SimpleDropzone } from 'simple-dropzone'
 
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
-import { Vector3 } from 'three'
+import GUI from '@/components/GUI.vue'
+// import FileUpload from '@/components/FileUpload.vue'
+import Scene from '@/components/Scene.vue'
 
 export default {
   name: 'viewer',
 
   components: {
     GUI,
-    // ViewerHeader,
-    FileUpload
+    Scene
   },
 
   computed: {
-    ...mapState(['fileURL', 'rootPath', 'fileMap'])
+    ...mapState(['showSpinner', 'showDropzone'])
   },
 
   data() {
     return {
-      camera: null,
-      scene: null,
-      renderer: null,
-      lights: [],
-
-      controls: null,
-      content: null,
-
-      clock: null,
-      mixer: null
-
-      // pmremGenerator: null
+      isLoaded: false
     }
+  },
+
+  mounted() {
+    const dropzoneController = new SimpleDropzone(
+      this.$refs['dropzone'],
+      this.$refs['file-input']
+    )
+    const self = this
+    dropzoneController
+      .on('drop', ({ files }) => this.load(files))
+      .on('dropstart', () => self.$store.commit('activateSpinner'))
+      .on('droperror', () => self.$store.commit('deactivateSpinner'))
   },
 
   methods: {
-    init() {
-      // const el = document.getElementById('viewer')
-      const el = this.$refs['viewer']
+    load(fileMap) {
+      let rootFile
+      let rootPath
 
-      // Scene
-      this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0xa0a0a0)
-      this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000)
-
-      // Lighting
-      let light = new THREE.HemisphereLight(0xffffff, 0x444444)
-      light.position.set(0, 200, 0)
-      this.lights.push(light)
-      // this.scene.add(light)
-
-      light = new THREE.DirectionalLight(0xffffff)
-      light.position.set(0, 200, 100)
-      light.castShadow = true
-      light.shadow.camera.top = 180
-      light.shadow.camera.bottom = -100
-      light.shadow.camera.left = -120
-      light.shadow.camera.right = 120
-      this.lights.push(light)
-      // this.scene.add(light)
-      this.scene.add(...this.lights)
-
-      // // Ground
-      // let mesh = new THREE.Mesh(
-      //   new THREE.PlaneBufferGeometry(2000, 2000),
-      //   new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
-      // )
-      // mesh.rotation.x = -Math.PI / 2
-      // mesh.receiveShadow = true
-      // this.scene.add(mesh)
-
-      // Grid
-      let grid = new THREE.GridHelper(20, 20, 0x000000, 0x000000)
-      grid.material.opacity = 0.2
-      grid.material.transparent = true
-      this.scene.add(grid)
-
-      // Camera
-      // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
-      this.camera = new THREE.PerspectiveCamera(
-        60, // fov
-        el.clientWidth / el.clientHeight,
-        0.01,
-        1000
-      )
-
-      // Renderer
-      this.renderer = new THREE.WebGLRenderer({ antialias: true })
-      // // TODO: Needed or nah?
-      // this.renderer.physicallyCorrectLights = true
-      // this.renderer.outputEncoding = THREE.sRGBEncoding
-      this.renderer.setClearColor(0xcccccc)
-      this.renderer.setPixelRatio(window.devicePixelRatio) //
-      this.renderer.setSize(el.clientWidth, el.clientHeight)
-      // this.renderer.shadowMap.enabled = true //
-
-      // // TODO: PmremGenerator | Texture roughness values
-      // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
-      // this.pmremGenerator.compileEquirectangularShader()
-
-      // Controls
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-      // // TODO: optional - auto rotation using controls
-      // this.controls.autoRotate = false
-      // this.controls.autoRotateSpeed = -5
-      // this.controls.screenSpacePanning = true
-
-      el.appendChild(this.renderer.domElement)
-
-      //
-
-      requestAnimationFrame(this.animate) // TODO: needed ?
-
-      // Resize resolution workaround
-      el.addEventListener('resize', this.onWindowResize.bind(null, el), false)
-    },
-
-    animate() {
-      requestAnimationFrame(this.animate)
-
-      const delta = this.clock.getDelta()
-
-      this.controls.update()
-      if (this.mixer) this.mixer.update(delta)
-
-      // this.renderer.render(this.scene, this.camera)
-      this.render()
-    },
-
-    render() {
-      this.renderer.render(this.scene, this.camera)
-      // if (this.state.grid) {
-      //   this.axesCamera.position.copy(this.defaultCamera.position)
-      //   this.axesCamera.lookAt(this.axesScene.position)
-      //   this.axesRenderer.render( this.axesScene, this.axesCamera );
+      console.dir(fileMap)
+      console.log('List of file(s)...')
+      // if (Object.entries(fileMap).length === 1) {
       // }
-    },
 
-    onWindowResize(window) {
-      this.camera.aspect = window.clientWidth / window.clientHeight
-      this.camera.updateProjectionMatrix()
-
-      this.renderer.setSize(window.clientWidth, window.clientHeight)
-    },
-
-    // Loading from file
-    loadModel() {
-      console.log('in viewer.load:')
-      console.dir(this.fileURL)
-      console.dir(this.rootPath)
-      console.dir(this.fileMap)
-
-      // TODO: Only load needed THREE components manually
-      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
-      console.log('in viewer.load baseURL:', baseURL)
-
-      // Load
-      // return new Promise((resolve, reject) => {
-      return new Promise((resolve, reject) => {
-        const manager = new THREE.LoadingManager()
-
-        // Intercept and override relative URLs.
-        manager.setURLModifier((url, path) => {
-          const normalizedURL =
-            this.rootPath + url.replace(baseURL, '').replace(/^(\.?\/)/, '')
-
-          if (this.fileMap.has(normalizedURL)) {
-            const blob = this.fileMap.get(normalizedURL)
-            const blobURL = URL.createObjectURL(blob)
-            blobURLs.push(blobURL)
-            return blobURL
-          }
-
-          // console.log('in viewer.load manager URL Modifier, returning:');
-          // console.dir((path || '') + url)
-          return (path || '') + url
-        })
-
-        const loader = new GLTFLoader(manager)
-        loader.setCrossOrigin('anonymous')
-
-        const dracoLoader = new DRACOLoader()
-        dracoLoader.setDecoderPath('assets/draco/')
-        loader.setDRACOLoader(dracoLoader)
-
-        const blobURLs = []
-
-        loader.load(
-          this.fileURL,
-          // called when the resource is loaded
-          gltf => {
-            const scene = gltf.scene || gltf.scenes[0]
-            const clips = gltf.animations || []
-
-            // TODO: thoroughly check this function
-            this.setContent(scene, clips)
-
-            console.log('in viewer.load blobURLs:')
-            console.dir(blobURLs)
-            blobURLs.forEach(URL.revokeObjectURL)
-
-            // See: https://github.com/google/draco/issues/349
-            // DRACOLoader.releaseDecoderModule();
-
-            resolve(gltf)
-          },
-          undefined,
-          reject
-        )
+      // Key: filePath | value: fileName
+      Array.from(fileMap).forEach(([path, file]) => {
+        console.log(`File: ${file.name}`)
+        if (file.name.match(/\.(gltf|glb)$/)) {
+          rootFile = file
+          rootPath = path.replace(file.name, '')
+        }
       })
+
+      if (!rootFile) {
+        this.onError('No .gltf or .glb asset found.')
+      }
+
+      console.log('before this.view:')
+      console.dir(rootFile)
+      console.dir(rootPath)
+      console.dir(fileMap)
+      this.view(rootFile, rootPath, fileMap)
     },
 
-    /**
-     * object = Scene object
-     */
-    setContent(object, clips) {
-      // this.clear();
+    view(rootFile, rootPath, fileMap) {
+      // if (this.viewer) this.viewer.clear()
 
-      const box = new THREE.Box3().setFromObject(object)
-      const size = box.getSize(new THREE.Vector3()).length()
-      const center = box.getCenter(new THREE.Vector3())
+      // const viewer = this.viewer || this.createViewer()
 
-      console.log('in setContent:')
-      console.dir(object)
-      console.dir(object.children[0])
-      console.dir(this.camera)
+      const fileURL =
+        typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
-      // this.controls.reset()
+      const cleanup = () => {
+        this.hideSpinner()
+        if (typeof rootFile === 'object') URL.revokeObjectURL(fileURL)
+      }
 
-      object.position.x += object.position.x - center.x
-      object.position.y += object.position.y - center.y
-      object.position.z += object.position.z - center.z
+      // Save fileUrl, rootPath and fileMap to global state
+      // so Viewer can access them via $store
 
-      // this.controls.maxDistance = size * 10
+      console.log('before this.load:')
+      console.dir(fileURL)
+      console.dir(rootPath)
+      console.dir(fileMap)
+      this.$store.dispatch('passLoadToViewer', { fileURL, rootPath, fileMap })
 
-      this.camera.near = size / 1000 // 100
-      this.camera.far = size * 1000 // 100
-      this.camera.updateProjectionMatrix()
+      // viewer
+      // .load(fileURL, rootPath, fileMap)
+      // .catch(e => this.onError(e))
+      // .then(gltf => {
+      //   // if (!this.options.kiosk) {
+      //   // this.validationCtrl.validate(fileURL, rootPath, fileMap, gltf)
+      //   // }
+      //   cleanup()
+      // })
+      this.isLoaded = true
+    },
 
-      // if (this.options.cameraPosition) {
-      // this.camera.position.fromArray(this.options.cameraPosition)
-      // this.camera.lookAt(new THREE.Vector3())
-      // } else {
-      this.camera.position.copy(center)
-      this.camera.position.x += size / 2.0
-      this.camera.position.y += size / 5.0
-      this.camera.position.z += size / 2.0
-      this.camera.lookAt(center)
-      // }
-
-      // this.setCamera()
-
-      // this.axesCamera.position.copy(this.camera.position)
-      // this.axesCamera.lookAt(this.axesScene.position)
-      // this.axesCamera.near = size / 100
-      // this.axesCamera.far = size * 100
-      // this.axesCamera.updateProjectionMatrix()
-      // this.axesCorner.scale.set(size, size, size)
-
-      // this.controls.saveState()
-      // object.scale = new THREE.Vector3(100, 100, 100)
-
-      this.scene.add(object)
-      this.content = object
-    }
-  },
-
-  watch: {
-    // TODO: isLoaded even needed??
-
-    // TODO: move Load() from Viewer to store ??
-
-    fileURL: function() {
-      this.clock = new THREE.Clock()
-      this.init()
-      this.animate()
-
-      this.loadModel()
-        // On Error handler
-        .catch(error => {
-          let message = (error || {}).message || error.toString()
-          if (message.match(/ProgressEvent/)) {
-            message =
-              'Unable to retrieve this file. Check JS console and browser network tab.'
-          } else if (message.match(/Unexpected token/)) {
-            message = `Unable to parse file content. Verify that this file is valid. Error: "${message}"`
-          } else if (error && error.target && error.target instanceof Image) {
-            message = 'Missing texture: ' + error.target.src.split('/').pop()
-          }
-          window.alert(message)
-          console.error(error)
-        })
-        // Then Handler
-        .then(gltf => {
-          // Cleanup
-          this.$store.commit('deactivateSpinner')
-          if (typeof this.rootFile === 'object')
-            URL.revokeObjectURL(this.fileURL)
-        })
+    onError(error) {
+      let message = (error || {}).message || error.toString()
+      if (message.match(/ProgressEvent/)) {
+        message =
+          'Unable to retrieve this file. Check JS console and browser network tab.'
+      } else if (message.match(/Unexpected token/)) {
+        message = `Unable to parse file content. Verify that this file is valid. Error: "${message}"`
+      } else if (error && error.target && error.target instanceof Image) {
+        message = 'Missing texture: ' + error.target.src.split('/').pop()
+      }
+      window.alert(message)
+      console.error(error)
     }
   }
 }
@@ -322,8 +156,137 @@ export default {
 <style lang="scss">
 .viewer {
   display: flex;
+  flex-direction: column; // TODO: rethink later
   width: 100vw;
   flex-grow: 1;
   position: relative;
+}
+
+.viewer-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  flex-grow: 1;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropzone {
+  display: flex;
+  // flex-grow: 1;
+  // width: 100vw;
+  justify-content: center;
+  align-items: center;
+  // TODO
+  width: 100%;
+  height: 100%;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  align-items: center;
+}
+
+.placeholder-label {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 0.5em;
+  background: #eee;
+  padding: 2em;
+  text-align: center;
+
+  p {
+    font-size: 1.2rem;
+    color: #999;
+  }
+}
+
+/******************************************************************************
+ * Upload Button
+ *
+ * https://tympanus.net/Tutorials/CustomFileInputs/
+ */
+
+.upload-btn {
+  margin-top: 2em;
+  input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+  label {
+    color: #353535;
+    border: 0;
+    border-radius: 3px;
+    transition: ease 0.2s background;
+    font-size: 1rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.625rem 1.25rem;
+  }
+  label:hover {
+    background: #ddd;
+  }
+  svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    fill: currentColor;
+    margin-top: -0.25em;
+    margin-right: 0.25em;
+  }
+}
+
+/******************************************************************************
+ * CSS Spinner
+ *
+ * http://tobiasahlin.com/spinkit/
+ */
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -20px;
+
+  background-color: #333;
+
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1s infinite ease-in-out;
+  animation: sk-scaleout 1s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  }
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 </style>
