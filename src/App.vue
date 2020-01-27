@@ -26,7 +26,7 @@ body {
   font-family: 'Raleway', sans-serif;
   background: #f5f5f5;
   height: 100%;
-  // overflow: hidden;
+  // overflow: hidden; // TODO: implement at later stages
 }
 
 body {

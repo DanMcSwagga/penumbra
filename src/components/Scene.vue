@@ -268,16 +268,12 @@ export default {
   },
 
   watch: {
-    // TODO: isLoaded even needed??
-
-    // TODO: move Load() from Viewer to store ??
-
     fileURL: function() {
-      console.log('WATCING IN WATCH')
       this.clock = new THREE.Clock()
       this.init()
       this.animate()
 
+      // Same as viewer.load().catch().then()
       this.loadModel()
         // On Error handler
         .catch(error => {

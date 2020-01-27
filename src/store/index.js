@@ -33,8 +33,8 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    passLoadToViewer({ commit }, fileData) {
-      console.log('~~~ passing file data to Viewer')
+    saveFileData({ commit }, fileData) {
+      console.log('~~~ Saving file data to global state...')
       console.dir(fileData)
       commit('setFileData', fileData)
     }

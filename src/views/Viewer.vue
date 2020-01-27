@@ -73,18 +73,18 @@ export default {
   },
 
   methods: {
+    // TODO: move Load() from Viewer to store ??
     load(fileMap) {
       let rootFile
       let rootPath
 
-      console.dir(fileMap)
       console.log('List of file(s)...')
+      console.dir(fileMap)
       // if (Object.entries(fileMap).length === 1) {
       // }
 
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
-        console.log(`File: ${file.name}`)
         if (file.name.match(/\.(gltf|glb)$/)) {
           rootFile = file
           rootPath = path.replace(file.name, '')
@@ -95,44 +95,19 @@ export default {
         this.onError('No .gltf or .glb asset found.')
       }
 
-      console.log('before this.view:')
-      console.dir(rootFile)
-      console.dir(rootPath)
-      console.dir(fileMap)
       this.view(rootFile, rootPath, fileMap)
     },
 
     view(rootFile, rootPath, fileMap) {
       // if (this.viewer) this.viewer.clear()
-
       // const viewer = this.viewer || this.createViewer()
 
       const fileURL =
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
-      const cleanup = () => {
-        this.hideSpinner()
-        if (typeof rootFile === 'object') URL.revokeObjectURL(fileURL)
-      }
+      // Save fileUrl, rootPath and fileMap to global $store state
+      this.$store.dispatch('saveFileData', { fileURL, rootPath, fileMap })
 
-      // Save fileUrl, rootPath and fileMap to global state
-      // so Viewer can access them via $store
-
-      console.log('before this.load:')
-      console.dir(fileURL)
-      console.dir(rootPath)
-      console.dir(fileMap)
-      this.$store.dispatch('passLoadToViewer', { fileURL, rootPath, fileMap })
-
-      // viewer
-      // .load(fileURL, rootPath, fileMap)
-      // .catch(e => this.onError(e))
-      // .then(gltf => {
-      //   // if (!this.options.kiosk) {
-      //   // this.validationCtrl.validate(fileURL, rootPath, fileMap, gltf)
-      //   // }
-      //   cleanup()
-      // })
       this.isLoaded = true
     },
 
