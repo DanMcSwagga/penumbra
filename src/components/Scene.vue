@@ -24,18 +24,23 @@ export default {
       scene: null,
       renderer: null,
       lights: [],
-
       controls: null,
-      content: null,
 
-      clock: null,
-      mixer: null
+      clock: null
+      // mixer: null
 
       // pmremGenerator: null
     }
   },
 
   methods: {
+    reset() {
+      // TODO: Only perform if this.$refs['scene'].innerHTML !== '' ??
+      this.clock = new THREE.Clock()
+      this.lights = []
+      this.$refs['scene'].innerHTML = ''
+    },
+
     init() {
       // const el = document.getElementById('scene')
       const el = this.$refs['scene']
@@ -127,7 +132,7 @@ export default {
       const delta = this.clock.getDelta()
 
       this.controls.update()
-      if (this.mixer) this.mixer.update(delta)
+      // if (this.mixer) this.mixer.update(delta)
 
       // this.renderer.render(this.scene, this.camera)
       this.render()
@@ -255,13 +260,15 @@ export default {
       // object.scale = new THREE.Vector3(100, 100, 100)
 
       this.scene.add(object)
-      this.content = object
     }
   },
 
   watch: {
     fileURL: function() {
-      this.clock = new THREE.Clock()
+      console.log('Watching for a fileURL change...')
+
+      // Initiate the scene
+      this.reset()
       this.init()
       this.animate()
 
