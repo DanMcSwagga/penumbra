@@ -5,6 +5,9 @@
     <button class="item" @click="isLoaded = true" v-if="!isLoaded">
       Start
     </button>
+    <button class="item" @click="isLoaded = false" v-else>
+      Go back!
+    </button>
   </header>
 </template>
 
@@ -18,7 +21,7 @@ export default {
         return this.$store.state.isLoaded
       },
       set: function(boolValue) {
-        this.$store.commit('set', { key: 'isLoaded', value: true })
+        this.$store.commit('set', { key: 'isLoaded', value: boolValue })
       }
     }
   }
