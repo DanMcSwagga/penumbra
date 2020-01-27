@@ -114,7 +114,11 @@ export default {
       requestAnimationFrame(this.animate) // TODO: needed ?
 
       // Resize resolution workaround
-      el.addEventListener('resize', this.onWindowResize.bind(null, el), false)
+      window.addEventListener(
+        'resize',
+        this.onWindowResize.bind(null, el),
+        false
+      )
     },
 
     animate() {
@@ -138,11 +142,11 @@ export default {
       // }
     },
 
-    onWindowResize(window) {
-      this.camera.aspect = window.clientWidth / window.clientHeight
+    onWindowResize(el) {
+      this.camera.aspect = el.clientWidth / el.clientHeight
       this.camera.updateProjectionMatrix()
 
-      this.renderer.setSize(window.clientWidth, window.clientHeight)
+      this.renderer.setSize(el.clientWidth, el.clientHeight)
     },
 
     // Loading from file
@@ -278,14 +282,14 @@ export default {
         // On Error handler
         .catch(error => {
           let message = (error || {}).message || error.toString()
-          if (message.match(/ProgressEvent/)) {
-            message =
-              'Unable to retrieve this file. Check JS console and browser network tab.'
-          } else if (message.match(/Unexpected token/)) {
-            message = `Unable to parse file content. Verify that this file is valid. Error: "${message}"`
-          } else if (error && error.target && error.target instanceof Image) {
-            message = 'Missing texture: ' + error.target.src.split('/').pop()
-          }
+          // if (message.match(/ProgressEvent/)) {
+          //   message =
+          //     'Unable to retrieve this file. Check JS console and browser network tab.'
+          // } else if (message.match(/Unexpected token/)) {
+          //   message = `Unable to parse file content. Verify that this file is valid. Error: "${message}"`
+          // } else if (error && error.target && error.target instanceof Image) {
+          //   message = 'Missing texture: ' + error.target.src.split('/').pop()
+          // }
           window.alert(message)
           console.error(error)
         })
