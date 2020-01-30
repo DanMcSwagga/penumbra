@@ -3,10 +3,16 @@
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from 'vuex'
+
 import { GUI } from 'dat.gui'
 
 export default {
   name: 'gui',
+
+  computed: {
+    ...mapState(['sceneState'])
+  },
 
   data() {
     return {
@@ -24,29 +30,27 @@ export default {
 
       this.formDisplayControls()
       this.formLightingControls()
-      //
+
       this.$refs['gui-wrapper'].appendChild(this.gui.domElement)
-      this.gui.open() // works?
+      this.gui.open()
     },
 
     formDisplayControls() {
       const dispayFolder = this.gui.addFolder('Display')
 
-      const fakeState = {
-        grid: false
-      }
-
-      const gridController = dispayFolder.add(fakeState, 'grid')
-      gridController.onChange(() => /*this.updateDisplay()*/ {})
+      // gridController watches for 'grid' change in 'sceneState'
+      const gridController = dispayFolder.add(this.sceneState, 'grid')
+      // gridController then calls some notifying mutation
+      // that tells 'Scene' to call subscribed updateDisplay()
+      gridController.onChange(() => {
+        this.$store.commit('updateGrid')
+      })
     },
 
     formLightingControls() {
       const dispayFolder = this.gui.addFolder('Lighting')
 
-      const fakeState = {
-        exposure: 1.0
-      }
-
+      const fakeState = { exposure: 1.0 }
       const exposureController = dispayFolder.add(fakeState, 'exposure', 0, 2)
       exposureController.onChange(() => /*this.updateDisplay()*/ {})
     }
@@ -59,7 +63,7 @@ export default {
   position: absolute;
   // position: fixed;
   z-index: 2;
-  // top: 0;
+  top: 0;
   right: 0;
   // bottom: 0;
   pointer-events: none;

@@ -1,5 +1,8 @@
 <template>
-  <div id="scene" class="scene" :ref="'scene'"></div>
+  <div class="scene-wrapper">
+    <div id="scene" class="scene" :ref="'scene'"></div>
+    <div if="axes" class="axes" :ref="'axes'"></div>
+  </div>
 </template>
 
 <script>
@@ -15,30 +18,51 @@ export default {
   name: 'scene',
 
   computed: {
-    ...mapState(['fileURL', 'rootPath', 'fileMap'])
+    ...mapState(['fileURL', 'rootPath', 'fileMap', 'sceneState'])
   },
 
+  // TODO: !!!IMPORTANT!!! Refactor everything regarding viewer
+  // into its own Class and import it here, instance it here etc.
   data() {
     return {
-      camera: null,
+      defaultCamera: null,
       scene: null,
       renderer: null,
       lights: [],
       controls: null,
 
-      clock: null
+      clock: null,
+      localState: null,
       // mixer: null
 
       // pmremGenerator: null
+
+      // Grid
+      gridHelper: null,
+
+      // Axes
+      axesHelper: null,
+      axesRenderer: null,
+      axesCamera: null,
+      axesScene: null
     }
   },
 
   methods: {
     reset() {
-      // TODO: Only perform if this.$refs['scene'].innerHTML !== '' ??
+      this.$refs['scene'].innerHTML = ''
+      this.$refs['axes'].innerHTML = ''
+
+      // Viewer resets | TODO: refactor everything into Viewer class
       this.clock = new THREE.Clock()
       this.lights = []
-      this.$refs['scene'].innerHTML = ''
+      this.gridHelper = null
+    },
+
+    initState() {
+      this.localState = {
+        grid: false
+      }
     },
 
     init() {
@@ -76,15 +100,9 @@ export default {
       // mesh.receiveShadow = true
       // this.scene.add(mesh)
 
-      // Grid
-      let grid = new THREE.GridHelper(20, 20, 0x000000, 0x000000)
-      grid.material.opacity = 0.2
-      grid.material.transparent = true
-      this.scene.add(grid)
-
       // Camera
       // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
-      this.camera = new THREE.PerspectiveCamera(
+      this.defaultCamera = new THREE.PerspectiveCamera(
         60, // fov
         el.clientWidth / el.clientHeight,
         0.01,
@@ -106,7 +124,10 @@ export default {
       // this.pmremGenerator.compileEquirectangularShader()
 
       // Controls
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+      this.controls = new OrbitControls(
+        this.defaultCamera,
+        this.renderer.domElement
+      )
       // // TODO: optional - auto rotation using controls
       // this.controls.autoRotate = false
       // this.controls.autoRotateSpeed = -5
@@ -115,15 +136,14 @@ export default {
       el.appendChild(this.renderer.domElement)
 
       //
+      // TODO: create a separate component for the axisScene
+      this.addAxesScene()
 
       requestAnimationFrame(this.animate) // TODO: needed ?
 
       // Resize resolution workaround
-      window.addEventListener(
-        'resize',
-        this.onWindowResize.bind(null, el),
-        false
-      )
+      // this.onWindowResize.bind(null, el),
+      window.addEventListener('resize', this.onWindowResize, false)
     },
 
     animate() {
@@ -134,24 +154,32 @@ export default {
       this.controls.update()
       // if (this.mixer) this.mixer.update(delta)
 
-      // this.renderer.render(this.scene, this.camera)
       this.render()
     },
 
     render() {
-      this.renderer.render(this.scene, this.camera)
-      // if (this.state.grid) {
-      //   this.axesCamera.position.copy(this.defaultCamera.position)
-      //   this.axesCamera.lookAt(this.axesScene.position)
-      //   this.axesRenderer.render( this.axesScene, this.axesCamera );
-      // }
+      this.renderer.render(this.scene, this.defaultCamera)
+
+      // Adds axisScene
+      if (this.sceneState.grid) {
+        this.axesCamera.position.copy(this.defaultCamera.position)
+        this.axesCamera.lookAt(this.axesScene.position)
+        this.axesRenderer.render(this.axesScene, this.axesCamera)
+      }
     },
 
-    onWindowResize(el) {
-      this.camera.aspect = el.clientWidth / el.clientHeight
-      this.camera.updateProjectionMatrix()
+    onWindowResize() {
+      // Main scene resize
+      const { clientWidth, clientHeight } = this.$refs['scene']
+      this.defaultCamera.aspect = clientWidth / clientHeight
+      this.defaultCamera.updateProjectionMatrix()
+      this.renderer.setSize(clientWidth, clientHeight)
 
-      this.renderer.setSize(el.clientWidth, el.clientHeight)
+      // Axes scene resize
+      const { axesClientWidth, axesClientHeight } = this.$refs['axes']
+      this.axesCamera.aspect = axesClientWidth / axesClientHeight
+      this.axesCamera.updateProjectionMatrix()
+      this.axesRenderer.setSize(axesClientWidth, axesClientHeight)
     },
 
     // Loading from file
@@ -232,34 +260,93 @@ export default {
 
       // this.controls.maxDistance = size * 10
 
-      this.camera.near = size / 1000 // 100
-      this.camera.far = size * 1000 // 100
-      this.camera.updateProjectionMatrix()
+      this.defaultCamera.near = size / 1000 // 100
+      this.defaultCamera.far = size * 1000 // 100
+      this.defaultCamera.updateProjectionMatrix()
 
       // if (this.options.cameraPosition) {
-      // this.camera.position.fromArray(this.options.cameraPosition)
-      // this.camera.lookAt(new THREE.Vector3())
+      // this.defaultCamera.position.fromArray(this.options.cameraPosition)
+      // this.defaultCamera.lookAt(new THREE.Vector3())
       // } else {
-      this.camera.position.copy(center)
-      this.camera.position.x += size / 2.0
-      this.camera.position.y += size / 5.0
-      this.camera.position.z += size / 2.0
-      this.camera.lookAt(center)
+      this.defaultCamera.position.copy(center)
+      this.defaultCamera.position.x += size / 2.0
+      this.defaultCamera.position.y += size / 5.0
+      this.defaultCamera.position.z += size / 2.0
+      this.defaultCamera.lookAt(center)
       // }
 
       // this.setCamera()
 
-      // this.axesCamera.position.copy(this.camera.position)
-      // this.axesCamera.lookAt(this.axesScene.position)
-      // this.axesCamera.near = size / 100
-      // this.axesCamera.far = size * 100
-      // this.axesCamera.updateProjectionMatrix()
-      // this.axesCorner.scale.set(size, size, size)
+      // AxesHelper
+      this.axesCamera.position.copy(this.defaultCamera.position)
+      this.axesCamera.lookAt(this.axesScene.position)
+      this.axesCamera.near = size / 100
+      this.axesCamera.far = size * 100
+      this.axesCamera.updateProjectionMatrix()
+      this.axesCorner.scale.set(size, size, size)
 
       // this.controls.saveState()
       // object.scale = new THREE.Vector3(100, 100, 100)
 
       this.scene.add(object)
+
+      //
+
+      this.updateDisplay()
+    },
+
+    updateDisplay() {
+      console.log('IN UPDATE DISPLAY')
+      console.log('this.gridHelper', this.gridHelper)
+      console.log('this.sceneState.grid', this.sceneState.grid)
+      console.log('Boolean(this.gridHelper)', Boolean(this.gridHelper))
+      console.log('!(this.gridHelper === null)', !(this.gridHelper === null))
+
+      // TODO: separate axesScene/Helper and gridHelper
+
+      if (this.sceneState.grid !== Boolean(this.gridHelper)) {
+        console.log('UPDATING SOF HPASOJFDAPOSJ FOSA')
+        if (this.sceneState.grid) {
+          this.gridHelper = new THREE.GridHelper()
+          // TODO: add as an option to GUI
+          // this.gridHelper.material.transparent = true
+          this.axesHelper = new THREE.AxesHelper()
+          this.axesHelper.renderOrder = 999
+          this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
+          this.scene.add(this.gridHelper)
+          this.scene.add(this.axesHelper)
+        } else {
+          this.scene.remove(this.gridHelper)
+          this.scene.remove(this.axesHelper)
+          this.gridHelper = null
+          this.axesHelper = null
+          this.axesRenderer.clear()
+        }
+      }
+    },
+
+    addAxesScene() {
+      const axesElement = this.$refs['axes']
+      const { clientWidth, clientHeight } = axesElement
+
+      this.axesScene = new THREE.Scene()
+      this.axesCamera = new THREE.PerspectiveCamera(
+        50,
+        clientWidth / clientHeight,
+        0.1,
+        10
+      )
+      this.axesScene.add(this.axesCamera)
+
+      this.axesRenderer = new THREE.WebGLRenderer({ alpha: true })
+      this.axesRenderer.setPixelRatio(window.devicePixelRatio)
+      this.axesRenderer.setSize(clientWidth, clientHeight)
+
+      this.axesCamera.up = this.defaultCamera.up
+
+      this.axesCorner = new THREE.AxesHelper(5)
+      this.axesScene.add(this.axesCorner)
+      axesElement.appendChild(this.axesRenderer.domElement)
     }
   },
 
@@ -296,19 +383,51 @@ export default {
             URL.revokeObjectURL(this.fileURL)
         })
     }
+  },
+
+  created() {
+    this.$store.subscribe((mutation, state) => {
+      console.log('in created subsribe...')
+      if (mutation.type === 'updateGrid') {
+        console.log(`Reacting to Grid Update`)
+
+        this.updateDisplay()
+        // Do whatever makes sense now
+        // if (state.status === 'success') {
+        // this.complex = {
+        // deep: 'some deep object'
+        // }
+        // }
+      }
+    })
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.scene {
-  display: flex;
-  flex-direction: column; // TODO: rethink later
-  // width: 100vw;
-  // flex-grow: 1;
+.scene-wrapper {
   position: relative;
-  // TODO
   width: 100%;
   height: 100%;
+}
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.axes {
+  width: 100px;
+  height: 100px;
+  margin: 20px;
+  padding: 0px;
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  z-index: 10;
+  pointer-events: none;
 }
 </style>

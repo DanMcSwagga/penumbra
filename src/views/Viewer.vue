@@ -1,9 +1,8 @@
 <template>
   <main id="viewer" class="viewer">
-    <GUI />
     <div class="dropzone" id="dropzone" :ref="'dropzone'">
+      <GUI :class="{ 'no-display': !isLoaded }" />
       <Scene :class="{ 'no-display': !isLoaded }" />
-      <!-- TODO: create a separate component just for placeholder -->
       <UploadPlaceholder :class="{ 'no-display': isLoaded }" />
     </div>
     <div class="spinner" v-if="showSpinner" :ref="'spinner'"></div>
@@ -53,7 +52,7 @@ export default {
   },
 
   methods: {
-    // TODO: move Load() from Viewer to store ??
+    // TODO: move Load() from Viewer to store (?)
     load(fileMap) {
       let rootFile
       let rootPath
@@ -79,9 +78,6 @@ export default {
     },
 
     view(rootFile, rootPath, fileMap) {
-      // if (this.viewer) this.viewer.clear()
-      // const viewer = this.viewer || this.createViewer()
-
       const fileURL =
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
@@ -205,8 +201,10 @@ export default {
   left: 50%;
   top: 50%;
   margin: -20px;
+  z-index: 1000;
 
-  background-color: #333;
+  // background-color: #333;
+  background-color: #ff0000;
 
   border-radius: 100%;
   -webkit-animation: sk-scaleout 1s infinite ease-in-out;

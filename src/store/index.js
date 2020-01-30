@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+// import * as THREE from 'three'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -11,7 +13,10 @@ export default new Vuex.Store({
     // File loading stuff
     fileURL: '',
     rootPath: '',
-    fileMap: {}
+    fileMap: {},
+    sceneState: {
+      grid: false
+    }
   },
 
   mutations: {
@@ -22,6 +27,10 @@ export default new Vuex.Store({
     },
     deactivateSpinner: state => {
       state.showSpinner = false
+    },
+
+    updateGrid: state => {
+      console.log('~~ Notifying from store about updateGrid')
     },
 
     setFileData: (state, { fileURL, rootPath, fileMap }) => {
@@ -36,6 +45,7 @@ export default new Vuex.Store({
       state.fileMap = null
     }
   },
+
   actions: {
     saveFile({ commit }, fileData) {
       console.log('~~~ Saving file data to global state...')
@@ -45,6 +55,26 @@ export default new Vuex.Store({
     resetFile({ commit }) {
       console.log('~~~ Resetting file data to prepare for new model...')
       commit('resetFileData')
+    },
+    updateDisplayFromStore({ commit }) {
+      console.log('~~~ Updating GUI display')
+      // commit('set', { key: 'isLoaded', value: boolValue })
+      // if (this.state.grid !== Boolean(this.gridHelper)) {
+      //   if (this.state.grid) {
+      //     this.gridHelper = new THREE.GridHelper()
+      //     this.axesHelper = new THREE.AxesHelper()
+      //     this.axesHelper.renderOrder = 999
+      //     this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
+      //     this.scene.add(this.gridHelper)
+      //     this.scene.add(this.axesHelper)
+      //   } else {
+      //     this.scene.remove(this.gridHelper)
+      //     this.scene.remove(this.axesHelper)
+      //     this.gridHelper = null
+      //     this.axesHelper = null
+      //     this.axesRenderer.clear()
+      //   }
+      // }
     }
   },
   modules: {}
