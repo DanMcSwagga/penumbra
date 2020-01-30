@@ -15,7 +15,8 @@ export default new Vuex.Store({
     rootPath: '',
     fileMap: {},
     sceneState: {
-      grid: false
+      grid: false,
+      wireframe: false
     }
   },
 
@@ -29,8 +30,8 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
-    updateGrid: state => {
-      console.log('~~ Notifying from store about updateGrid')
+    updateDisplay: state => {
+      console.log('~~ Notifying from store about updateDisplay')
     },
 
     setFileData: (state, { fileURL, rootPath, fileMap }) => {
@@ -55,26 +56,6 @@ export default new Vuex.Store({
     resetFile({ commit }) {
       console.log('~~~ Resetting file data to prepare for new model...')
       commit('resetFileData')
-    },
-    updateDisplayFromStore({ commit }) {
-      console.log('~~~ Updating GUI display')
-      // commit('set', { key: 'isLoaded', value: boolValue })
-      // if (this.state.grid !== Boolean(this.gridHelper)) {
-      //   if (this.state.grid) {
-      //     this.gridHelper = new THREE.GridHelper()
-      //     this.axesHelper = new THREE.AxesHelper()
-      //     this.axesHelper.renderOrder = 999
-      //     this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
-      //     this.scene.add(this.gridHelper)
-      //     this.scene.add(this.axesHelper)
-      //   } else {
-      //     this.scene.remove(this.gridHelper)
-      //     this.scene.remove(this.axesHelper)
-      //     this.gridHelper = null
-      //     this.axesHelper = null
-      //     this.axesRenderer.clear()
-      //   }
-      // }
     }
   },
   modules: {}

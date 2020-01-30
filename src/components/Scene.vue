@@ -31,10 +31,10 @@ export default {
       lights: [],
       controls: null,
 
-      clock: null,
-      localState: null,
-      // mixer: null
+      content: null,
 
+      clock: null,
+      // mixer: null
       // pmremGenerator: null
 
       // Grid
@@ -57,13 +57,14 @@ export default {
       this.clock = new THREE.Clock()
       this.lights = []
       this.gridHelper = null
+      this.content = null // TODO: needed??
     },
 
-    initState() {
-      this.localState = {
-        grid: false
-      }
-    },
+    // initState() {
+    //   this.localState = {
+    //     grid: false
+    //   }
+    // },
 
     init() {
       // const el = document.getElementById('scene')
@@ -289,40 +290,25 @@ export default {
       // object.scale = new THREE.Vector3(100, 100, 100)
 
       this.scene.add(object)
+      this.content = object
+
+      this.content.traverse(node => {
+        if (node.isMesh) {
+          node.material.depthWrite = !node.material.transparent
+        } else if (node.isLight) {
+          this.state.addLights = false
+        }
+      })
 
       //
 
       this.updateDisplay()
-    },
 
-    updateDisplay() {
-      console.log('IN UPDATE DISPLAY')
-      console.log('this.gridHelper', this.gridHelper)
-      console.log('this.sceneState.grid', this.sceneState.grid)
-      console.log('Boolean(this.gridHelper)', Boolean(this.gridHelper))
-      console.log('!(this.gridHelper === null)', !(this.gridHelper === null))
+      //
 
-      // TODO: separate axesScene/Helper and gridHelper
-
-      if (this.sceneState.grid !== Boolean(this.gridHelper)) {
-        console.log('UPDATING SOF HPASOJFDAPOSJ FOSA')
-        if (this.sceneState.grid) {
-          this.gridHelper = new THREE.GridHelper()
-          // TODO: add as an option to GUI
-          // this.gridHelper.material.transparent = true
-          this.axesHelper = new THREE.AxesHelper()
-          this.axesHelper.renderOrder = 999
-          this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
-          this.scene.add(this.gridHelper)
-          this.scene.add(this.axesHelper)
-        } else {
-          this.scene.remove(this.gridHelper)
-          this.scene.remove(this.axesHelper)
-          this.gridHelper = null
-          this.axesHelper = null
-          this.axesRenderer.clear()
-        }
-      }
+      // window.content = this.content
+      // console.info('[glTF Viewer] THREE.Scene exported as `window.content`.')
+      // this.printGraph(this.content)
     },
 
     addAxesScene() {
@@ -347,6 +333,42 @@ export default {
       this.axesCorner = new THREE.AxesHelper(5)
       this.axesScene.add(this.axesCorner)
       axesElement.appendChild(this.axesRenderer.domElement)
+    },
+
+    updateDisplay() {
+      this.traverseMaterials(this.content, material => {
+        material.wireframe = this.sceneState.wireframe
+      })
+
+      // TODO: separate axesScene/Helper and gridHelper
+      if (this.sceneState.grid !== Boolean(this.gridHelper)) {
+        if (this.sceneState.grid) {
+          this.gridHelper = new THREE.GridHelper()
+          // TODO: add following as an option to GUI
+          // this.gridHelper.material.transparent = true
+          this.axesHelper = new THREE.AxesHelper()
+          this.axesHelper.renderOrder = 999
+          this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
+          this.scene.add(this.gridHelper)
+          this.scene.add(this.axesHelper)
+        } else {
+          this.scene.remove(this.gridHelper)
+          this.scene.remove(this.axesHelper)
+          this.gridHelper = null
+          this.axesHelper = null
+          this.axesRenderer.clear()
+        }
+      }
+    },
+
+    traverseMaterials(object, callback) {
+      object.traverse(node => {
+        if (!node.isMesh) return
+        const materials = Array.isArray(node.material)
+          ? node.material
+          : [node.material]
+        materials.forEach(callback)
+      })
     }
   },
 
@@ -387,9 +409,8 @@ export default {
 
   created() {
     this.$store.subscribe((mutation, state) => {
-      console.log('in created subsribe...')
-      if (mutation.type === 'updateGrid') {
-        console.log(`Reacting to Grid Update`)
+      if (mutation.type === 'updateDisplay') {
+        console.log(`Reacting to Display Update`)
 
         this.updateDisplay()
         // Do whatever makes sense now

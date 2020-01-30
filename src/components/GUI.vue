@@ -42,9 +42,10 @@ export default {
       const gridController = dispayFolder.add(this.sceneState, 'grid')
       // gridController then calls some notifying mutation
       // that tells 'Scene' to call subscribed updateDisplay()
-      gridController.onChange(() => {
-        this.$store.commit('updateGrid')
-      })
+      gridController.onChange(() => this.$store.commit('updateDisplay'))
+
+      const wireframeController = dispayFolder.add(this.sceneState, 'wireframe')
+      wireframeController.onChange(() => this.$store.commit('updateDisplay'))
     },
 
     formLightingControls() {
