@@ -1,7 +1,7 @@
 <template>
   <div class="scene-wrapper">
     <div id="scene" class="scene" :ref="'scene'"></div>
-    <div if="axes" class="axes" :ref="'axes'"></div>
+    <div id="axes" class="axes" :ref="'axes'"></div>
   </div>
 </template>
 
@@ -10,6 +10,8 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
@@ -22,7 +24,7 @@ export default {
   },
 
   // TODO: !!!IMPORTANT!!! Refactor everything regarding viewer
-  // into its own Class and import it here, instance it here etc.
+  // into its own Class and instantiate it here
   data() {
     return {
       defaultCamera: null,
@@ -34,8 +36,8 @@ export default {
       content: null,
 
       clock: null,
-      // mixer: null
-      // pmremGenerator: null
+      // mixer: null // animations
+      // pmremGenerator: null // texture roughness values
 
       // Grid
       gridHelper: null,
@@ -120,15 +122,15 @@ export default {
       this.renderer.setSize(el.clientWidth, el.clientHeight)
       // this.renderer.shadowMap.enabled = true //
 
-      // // TODO: PmremGenerator | Texture roughness values
       // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
       // this.pmremGenerator.compileEquirectangularShader()
 
-      // Controls
-      this.controls = new OrbitControls(
-        this.defaultCamera,
-        this.renderer.domElement
-      )
+      // // Controls
+      // this.controls = new OrbitControls(
+      //   this.defaultCamera,
+      //   this.renderer.domElement
+      // )
+      this.updateControls()
       // // TODO: optional - auto rotation using controls
       // this.controls.autoRotate = false
       // this.controls.autoRotateSpeed = -5
@@ -150,16 +152,15 @@ export default {
     animate() {
       requestAnimationFrame(this.animate)
 
-      const delta = this.clock.getDelta()
-
-      this.controls.update()
-      // if (this.mixer) this.mixer.update(delta)
-
       this.render()
     },
 
     render() {
       this.renderer.render(this.scene, this.defaultCamera)
+
+      // required if controls.enableDamping or controls.autoRotate are set to true
+      // this.controls.update(this.clock.getDelta())
+      if (this.controls.enabled) this.controls.update(this.clock.getDelta())
 
       // Adds axisScene
       if (this.sceneState.grid) {
@@ -171,19 +172,65 @@ export default {
 
     onWindowResize() {
       // Main scene resize
-      const { clientWidth, clientHeight } = this.$refs['scene']
-      this.defaultCamera.aspect = clientWidth / clientHeight
+      // const { clientWidth, clientHeight } = this.$refs['scene']
+      const mainEl = this.$refs['scene']
+      this.defaultCamera.aspect = mainEl.clientWidth / mainEl.clientHeight
       this.defaultCamera.updateProjectionMatrix()
-      this.renderer.setSize(clientWidth, clientHeight)
+      this.renderer.setSize(mainEl.clientWidth, mainEl.clientHeight)
 
-      // Axes scene resize
-      const { axesClientWidth, axesClientHeight } = this.$refs['axes']
-      this.axesCamera.aspect = axesClientWidth / axesClientHeight
-      this.axesCamera.updateProjectionMatrix()
-      this.axesRenderer.setSize(axesClientWidth, axesClientHeight)
+      // // Axes scene resize
+      // const axesEl = this.$refs['axes']
+      // this.axesCamera.aspect = axesEl.clientWidth / axesEl.clientHeight
+      // this.axesCamera.updateProjectionMatrix()
+      // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
+
+      // Controls
+      // this.controls.handleResize() // TODO: learn what thats for
     },
 
-    // Loading from file
+    // TODO: deep-learn about loaders, managers, draco etc,
+    // understand what setURLModifier does
+    loadModelFBX() {
+      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
+
+      // Load
+      return new Promise((resolve, reject) => {
+        const loader = new FBXLoader()
+        loader.setCrossOrigin('anonymous')
+
+        const blobURLs = []
+
+        loader.load(
+          this.fileURL,
+          object => {
+            // const scene = object.scene || object.scenes[0]
+            // const clips = object.animations || []
+
+            // // Animation
+            // mixer = new THREE.AnimationMixer(object)
+            // let action = mixer.clipAction(object.animations[0])
+            // action.play()
+
+            object.traverse(child => {
+              if (child.isMesh) {
+                child.castShadow = true
+                child.receiveShadow = true
+              }
+            })
+
+            this.setContent(object, [])
+
+            blobURLs.forEach(URL.revokeObjectURL)
+
+            resolve(object)
+          },
+          undefined,
+          reject
+        )
+      })
+    },
+
+    // Loading from file (GLTF)
     loadModel() {
       // TODO: Only load needed THREE components manually
 
@@ -237,8 +284,8 @@ export default {
 
             resolve(gltf)
           },
-          undefined,
-          reject
+          undefined, // onProgress
+          reject // onError
         )
       })
     },
@@ -303,9 +350,15 @@ export default {
       //
 
       this.updateDisplay()
-
+      // this.updateControls()
+      // // Controls
+      // this.controls = new OrbitControls(
+      //   this.defaultCamera,
+      //   this.renderer.domElement
+      // )
       //
 
+      // TODO: figure out what this is for
       // window.content = this.content
       // console.info('[glTF Viewer] THREE.Scene exported as `window.content`.')
       // this.printGraph(this.content)
@@ -361,6 +414,28 @@ export default {
       }
     },
 
+    updateControls() {
+      if (this.controls) this.controls.dispose()
+      if (this.sceneState.fpsControls) {
+        // this.controls = new PointerLockControls(
+        //   this.defaultCamera,
+        //   this.renderer.domElement
+        // )
+        // console.dir(this.controls)
+        this.controls = new FirstPersonControls(
+          this.defaultCamera,
+          this.renderer.domElement
+        )
+        this.controls.movementSpeed = 10
+        this.controls.lookSpeed = 0.1
+      } else {
+        this.controls = new OrbitControls(
+          this.defaultCamera,
+          this.renderer.domElement
+        )
+      }
+    },
+
     traverseMaterials(object, callback) {
       object.traverse(node => {
         if (!node.isMesh) return
@@ -383,17 +458,9 @@ export default {
 
       // Same as viewer.load().catch().then()
       this.loadModel()
-        // On Error handler
+        // On Error handler (should be same as in Viewer's onError)
         .catch(error => {
           let message = (error || {}).message || error.toString()
-          // if (message.match(/ProgressEvent/)) {
-          //   message =
-          //     'Unable to retrieve this file. Check JS console and browser network tab.'
-          // } else if (message.match(/Unexpected token/)) {
-          //   message = `Unable to parse file content. Verify that this file is valid. Error: "${message}"`
-          // } else if (error && error.target && error.target instanceof Image) {
-          //   message = 'Missing texture: ' + error.target.src.split('/').pop()
-          // }
           window.alert(message)
           console.error(error)
         })
@@ -411,14 +478,10 @@ export default {
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'updateDisplay') {
         console.log(`Reacting to Display Update`)
-
         this.updateDisplay()
-        // Do whatever makes sense now
-        // if (state.status === 'success') {
-        // this.complex = {
-        // deep: 'some deep object'
-        // }
-        // }
+      } else if (mutation.type === 'updateControls') {
+        console.log(`Reacting to Controls Update`)
+        this.updateControls()
       }
     })
   }

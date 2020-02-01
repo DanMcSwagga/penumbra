@@ -16,7 +16,8 @@ export default new Vuex.Store({
     fileMap: {},
     sceneState: {
       grid: false,
-      wireframe: false
+      wireframe: false,
+      fpsControls: false
     }
   },
 
@@ -30,6 +31,9 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
+    updateControls: state => {
+      console.log('~~ Notifying from store about updateControls')
+    },
     updateDisplay: state => {
       console.log('~~ Notifying from store about updateDisplay')
     },

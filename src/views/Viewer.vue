@@ -19,6 +19,10 @@ import Scene from '@/components/Scene.vue'
 import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
 
+// TODO: import as separate regex
+// Currently supports fbx and gltf (glb)
+const ALLOW_FILE_TYPE = /\.(fbx|gltf|glb)$/
+
 export default {
   name: 'viewer',
 
@@ -54,7 +58,6 @@ export default {
   },
 
   methods: {
-    // TODO: move Load() from Viewer to store (?)
     load(fileMap) {
       let rootFile
       let rootPath
@@ -66,14 +69,16 @@ export default {
 
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
-        if (file.name.match(/\.(gltf|glb)$/)) {
+        // if (file.name.match(/\.(gltf|glb)$/)) {
+        if (file.name.match(/\.(fbx)$/)) {
           rootFile = file
           rootPath = path.replace(file.name, '')
         }
       })
 
       if (!rootFile) {
-        this.onError('No .gltf or .glb asset found.')
+        // this.onError('No .gltf or .glb asset found.')
+        this.onError('No .fbx asset found.')
       }
 
       this.view(rootFile, rootPath, fileMap)
