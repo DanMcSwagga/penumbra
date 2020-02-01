@@ -1,7 +1,7 @@
 <template>
   <div class="placeholder">
     <div class="placeholder-label">
-      <p>Drag glTF 2.0 file or folder here</p>
+      <p>Drag FBX or GLTF file/folder here</p>
     </div>
     <div class="upload-btn">
       <input

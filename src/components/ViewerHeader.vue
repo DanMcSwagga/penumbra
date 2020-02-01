@@ -1,30 +1,20 @@
 <template>
   <header>
-    <h1 class="item"><a href="/">3D Model Viewer</a></h1>
+    <img class="logo" :src="logo" alt="Penumbra Logo" />
     <span class="separator"> | </span>
-    <button class="item" @click="isLoaded = true" v-if="!isLoaded">
-      Start
-    </button>
-    <button class="item" @click="isLoaded = false" v-else>
-      Go back!
-    </button>
+    <h1 class="item item_hoverable"><a href="/">3D Model Viewer</a></h1>
+    <span class="separator"> | </span>
+    <span class="item">Currently supports GLTF/GLB and FBX files</span>
   </header>
 </template>
 
 <script>
+import logo from '../assets/logo_clean_dark.png'
+
 export default {
   name: 'viewer-header',
 
-  computed: {
-    isLoaded: {
-      get: function() {
-        return this.$store.state.isLoaded
-      },
-      set: function(boolValue) {
-        this.$store.commit('set', { key: 'isLoaded', value: boolValue })
-      }
-    }
-  }
+  data: () => ({ logo })
 }
 </script>
 
@@ -43,59 +33,64 @@ header {
   z-index: 1;
 
   -webkit-app-region: drag;
-}
 
-header h1,
-header .item,
-header .separator {
-  color: #f5f5f5;
-  font-weight: 300;
-  line-height: 4rem;
-  margin: 0;
-}
+  h1,
+  .item,
+  .separator {
+    color: #f5f5f5;
+    font-weight: 300;
+    line-height: 4rem;
+    margin: 0;
+  }
 
-header h1 {
-  font-size: 1.4rem;
-}
+  .logo {
+    height: 28px;
+    width: 28px;
+    margin: 0 1em;
+  }
+  h1 {
+    font-size: 1.4rem;
+  }
 
-header h1 > a {
-  color: inherit;
-  font-size: inherit;
-  text-decoration: inherit;
-}
+  h1 > a {
+    color: inherit;
+    font-size: inherit;
+    text-decoration: inherit;
+  }
 
-header .item {
-  padding: 0 1em;
-  font-size: 0.8rem;
-  text-decoration: none;
-  transition: background ease 0.2s;
+  .item {
+    padding: 0 1em;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: background ease 0.2s;
 
-  -webkit-app-region: no-drag;
-}
+    -webkit-app-region: no-drag;
+  }
 
-header .item:hover {
-  background: #444;
-}
+  .item_hoverable:hover {
+    background: #444;
+  }
 
-header button.item {
-  height: 34px;
-  line-height: 35px;
-  padding: 0 1em;
-  margin: 0 1em;
-  border: 0;
-  background: #ffc107;
-  color: #333;
-  font-weight: 500;
-  border-radius: 2px;
-  cursor: pointer;
-}
+  button.item {
+    height: 34px;
+    line-height: 35px;
+    padding: 0 1em;
+    margin: 0 1em;
+    border: 0;
+    background: #ffc107;
+    color: #333;
+    font-weight: 500;
+    border-radius: 2px;
+    cursor: pointer;
+  }
 
-header button.item:hover {
-  color: #000;
-}
+  button.item:hover {
+    color: #000;
+  }
 
-header .separator {
-  margin: 0 0.2em;
-  opacity: 0.2;
+  .separator {
+    margin: 0 0.2em;
+    opacity: 0.2;
+  }
 }
 </style>
