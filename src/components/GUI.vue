@@ -28,11 +28,19 @@ export default {
     formGUI() {
       this.gui = new GUI({ autoPlace: false, width: 300, hideable: true })
 
+      this.formInteractionControls()
       this.formDisplayControls()
       this.formLightingControls()
 
       this.$refs['gui-wrapper'].appendChild(this.gui.domElement)
       this.gui.open()
+    },
+
+    formInteractionControls() {
+      const dispayFolder = this.gui.addFolder('Interaction')
+
+      const controlController = dispayFolder.add(this.sceneState, 'fpsControls')
+      controlController.onChange(() => this.$store.commit('updateControls'))
     },
 
     formDisplayControls() {
