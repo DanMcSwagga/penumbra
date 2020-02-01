@@ -64,21 +64,18 @@ export default {
 
       console.log('Map of file(s)...')
       console.dir(fileMap)
-      // if (Object.entries(fileMap).length === 1) {
-      // }
 
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
-        // if (file.name.match(/\.(gltf|glb)$/)) {
-        if (file.name.match(/\.(fbx)$/)) {
+        if (file.name.match(ALLOW_FILE_TYPE)) {
           rootFile = file
           rootPath = path.replace(file.name, '')
         }
       })
 
       if (!rootFile) {
-        // this.onError('No .gltf or .glb asset found.')
-        this.onError('No .fbx asset found.')
+        // TODO: create a more legible error string
+        this.onError(`No ${ALLOW_FILE_TYPE} asset found.`)
       }
 
       this.view(rootFile, rootPath, fileMap)

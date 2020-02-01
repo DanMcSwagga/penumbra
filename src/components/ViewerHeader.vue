@@ -5,6 +5,8 @@
     <h1 class="item item_hoverable"><a href="/">3D Model Viewer</a></h1>
     <span class="separator"> | </span>
     <span class="item">Currently supports GLTF/GLB and FBX files</span>
+    <!-- <span class="separator"> | </span> -->
+    <!-- <button class="item">Load Sample</button> -->
   </header>
 </template>
 
@@ -62,7 +64,7 @@ header {
     padding: 0 1em;
     font-size: 0.8rem;
     text-decoration: none;
-    transition: background ease 0.2s;
+    transition: background ease 0.3s;
 
     -webkit-app-region: no-drag;
   }
@@ -77,15 +79,16 @@ header {
     padding: 0 1em;
     margin: 0 1em;
     border: 0;
-    background: #ffc107;
+    background-color: #00e7ff;
     color: #333;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: 2px;
     cursor: pointer;
   }
 
   button.item:hover {
     color: #000;
+    background-color: #ffffff;
   }
 
   .separator {
