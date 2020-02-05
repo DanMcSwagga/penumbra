@@ -65,6 +65,9 @@ export default {
       console.log('Map of file(s)...')
       console.dir(fileMap)
 
+      // TODO: Check for file type here and add type to store
+      // which will determine what type of loader to use later
+
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
         if (file.name.match(ALLOW_FILE_TYPE)) {

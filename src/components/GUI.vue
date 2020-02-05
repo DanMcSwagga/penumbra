@@ -33,6 +33,7 @@ export default {
       this.formInteractionControls()
       this.formDisplayControls()
       this.formLightingControls()
+      this.formEncodingControls()
 
       this.$refs['gui-wrapper'].appendChild(this.gui.domElement)
       this.gui.open()
@@ -59,18 +60,27 @@ export default {
       displayFolder
         .add(this.sceneState, 'wireframe')
         .onChange(() => this.$store.commit('updateDisplay'))
-
-      displayFolder
-        .add(this.sceneState, 'outputEncoding', { sRGB, Linear })
-        .onChange(() => this.$store.commit('updateEncoding'))
     },
 
     formLightingControls() {
       const lightFolder = this.gui.addFolder('Lighting')
 
       lightFolder
+        .add(this.sceneState, 'enableLighting')
+        .listen()
+        .onChange(() => this.$store.commit('updateLighting'))
+
+      lightFolder
         .add(this.sceneState, 'exposure', 0, 2)
         .onChange(() => this.$store.commit('updateLighting'))
+    },
+
+    formEncodingControls() {
+      const encodingFolder = this.gui.addFolder('Encoding')
+
+      encodingFolder
+        .add(this.sceneState, 'outputEncoding', { sRGB, Linear })
+        .onChange(() => this.$store.commit('updateEncoding'))
     }
   }
 }

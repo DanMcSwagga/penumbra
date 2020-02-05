@@ -80,33 +80,7 @@ export default {
       // Scene
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color(0xa0a0a0)
-      this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000)
-
-      // Lighting
-      let light = new THREE.HemisphereLight(0xffffff, 0x444444)
-      light.position.set(0, 200, 0)
-      this.lights.push(light)
-      // this.scene.add(light)
-
-      light = new THREE.DirectionalLight(0xffffff)
-      light.position.set(0, 200, 100)
-      light.castShadow = true
-      light.shadow.camera.top = 180
-      light.shadow.camera.bottom = -100
-      light.shadow.camera.left = -120
-      light.shadow.camera.right = 120
-      this.lights.push(light)
-      // this.scene.add(light)
-      this.scene.add(...this.lights)
-
-      // // Ground
-      // let mesh = new THREE.Mesh(
-      //   new THREE.PlaneBufferGeometry(2000, 2000),
-      //   new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false })
-      // )
-      // mesh.rotation.x = -Math.PI / 2
-      // mesh.receiveShadow = true
-      // this.scene.add(mesh)
+      // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000)
 
       // Camera
       // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
@@ -116,11 +90,11 @@ export default {
         0.01,
         1000
       )
+      this.scene.add(this.defaultCamera)
 
       // Renderer
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
-      // // TODO: Needed or nah?
-      // this.renderer.physicallyCorrectLights = true
+      this.renderer.physicallyCorrectLights = true
       this.renderer.outputEncoding = this.sceneState.outputEncoding
       this.renderer.setClearColor(0xcccccc)
       this.renderer.setPixelRatio(window.devicePixelRatio) //
@@ -130,11 +104,6 @@ export default {
       // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
       // this.pmremGenerator.compileEquirectangularShader()
 
-      // // Controls
-      // this.controls = new OrbitControls(
-      //   this.defaultCamera,
-      //   this.renderer.domElement
-      // )
       this.updateControls()
       // // TODO: optional - auto rotation using controls
       // this.controls.autoRotate = false
@@ -243,19 +212,22 @@ export default {
       this.scene.add(object)
       this.content = object
 
+      // this.sceneState.enableLighting = true
+      this.$store.commit('set', { enableLighting: true })
+
       this.content.traverse(node => {
         if (node.isMesh) {
           node.material.depthWrite = !node.material.transparent
         } else if (node.isLight) {
-          // TODO: reactivate when addLights is present
-          // this.sceneState.addLights = false
+          this.$store.commit('set', { enableLighting: false })
         }
       })
 
       //
 
-      this.updateDisplay()
+      this.updateLighting()
       this.updateEncoding()
+      this.updateDisplay()
 
       // TODO: figure out what this is for
       // TODO: rename this.content to this.sceneInfo
@@ -335,12 +307,16 @@ export default {
           return (path || '') + url
         })
 
+        // TODO: need to determine which constructor to use here
+        // using information caught by Viewer regarding type
+        // e.g., loader = determineLoader(type, manager = default)
         const loader = new GLTFLoader(manager)
         loader.setCrossOrigin('anonymous')
 
-        const dracoLoader = new DRACOLoader()
-        dracoLoader.setDecoderPath('assets/draco/')
-        loader.setDRACOLoader(dracoLoader)
+        // Optional: Provide a DRACOLoader instance to decode compressed mesh data
+        // const dracoLoader = new DRACOLoader()
+        // dracoLoader.setDecoderPath('assets/draco/') // TODO: change
+        // loader.setDRACOLoader(dracoLoader)
 
         const blobURLs = []
 
@@ -350,6 +326,11 @@ export default {
           gltf => {
             const scene = gltf.scene || gltf.scenes[0]
             const clips = gltf.animations || []
+            // gltf.animations // Array<THREE.AnimationClip>
+            // gltf.scene // THREE.Scene
+            // gltf.scenes // Array<THREE.Scene>
+            // gltf.cameras // Array<THREE.Camera>
+            // gltf.asset // Object
 
             // TODO: thoroughly check this function
             this.setContent(scene, clips)
@@ -361,8 +342,10 @@ export default {
 
             resolve(gltf)
           },
-          undefined, // onProgress
-          reject // onError
+          // onProgress
+          xhr => console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`),
+          // onError
+          reject
         )
       })
     },
@@ -439,17 +422,64 @@ export default {
       }
     },
 
-    updateLighting() {
-      // Exposure
-      this.renderer.toneMappingExposure = this.sceneState.exposure
-    },
-
     updateEncoding() {
       // outputEncoding is an Enum of TextureEncodings
       this.renderer.outputEncoding = Number(this.sceneState.outputEncoding)
       this.traverseMaterials(this.content, material => {
         material.needsUpdate = true
       })
+    },
+
+    updateLighting() {
+      const scst = this.sceneState
+      const lits = this.lights
+
+      const addLighting = () => {
+        // const lightHemi = new THREE.HemisphereLight();
+
+        const lightAmbient = new THREE.AmbientLight(
+          0xffffff, // scst.ambientColor,
+          0.3 // scst.ambientIntensity
+        )
+        lightAmbient.name = 'ambient_light'
+
+        const lightDirectional = new THREE.DirectionalLight(
+          0xffffff, // scst.directColor,
+          0.8 * Math.PI // scst.directIntensity
+        )
+        lightDirectional.position.set(0.5, 0, 0.866) // ~60º
+        lightDirectional.name = 'directional_light'
+
+        this.defaultCamera.add(lightAmbient, lightDirectional)
+        lits.push(lightAmbient, lightDirectional)
+      }
+
+      const removeLighting = () => {
+        lits.forEach(light => light.parent.remove(light))
+        lits.length = 0
+      }
+
+      const applyDefaultLighting = () => {
+        lits[0].color.setHex(0xffffff)
+        lits[0].intensity = 0.3
+        lits[1].color.setHex(0xffffff)
+        lits[1].intensity = 0.8 * Math.PI
+      }
+
+      // Lighting control
+      if (scst.enableLighting && !lits.length) {
+        addLighting()
+      } else if (!scst.enableLighting && lits.length) {
+        removeLighting()
+      }
+
+      // Exposure
+      this.renderer.toneMappingExposure = this.sceneState.exposure
+
+      // Default lighting
+      if (lits.length === 2) {
+        applyDefaultLighting()
+      }
     },
 
     traverseMaterials(object, callback) {
@@ -465,8 +495,6 @@ export default {
 
   watch: {
     fileURL: function() {
-      console.log('Watching for a fileURL change...')
-
       // Initiate the scene
       this.reset()
       this.init()
@@ -496,18 +524,20 @@ export default {
 
   created() {
     this.$store.subscribe((mutation, state) => {
-      console.log(`Reacting to ${mutation.type} mutation`)
       switch (mutation.type) {
         case 'updateDisplay':
+          console.log(`Reacting to ${mutation.type} mutation`)
           this.updateDisplay()
           break
         case 'updateControls':
+          console.log(`Reacting to ${mutation.type} mutation`)
           this.updateControls()
           break
         case 'updateLighting':
           this.updateLighting()
           break
         case 'updateEncoding':
+          console.log(`Reacting to ${mutation.type} mutation`)
           this.updateEncoding()
           break
 

@@ -25,6 +25,7 @@ export default new Vuex.Store({
       wireframe: false,
 
       // Lighting
+      enableLighting: true,
       exposure: 1.0,
       outputEncoding: sRGBEncoding
     }
@@ -40,10 +41,10 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
-    updateControls: state => console.log('~~ updateControls notifier'),
-    updateDisplay: state => console.log('~~ updateDisplay notifier'),
-    updateLighting: state => console.log('~~ updateLighting notifier'),
-    updateEncoding: state => console.log('~~ updateEncoding notifier'),
+    updateControls: () => console.log('~~ updateControls notifier'),
+    updateDisplay: () => console.log('~~ updateDisplay notifier'),
+    updateLighting: () => /* console.log('~~ updateLighting notifier') */ {},
+    updateEncoding: () => console.log('~~ updateEncoding notifier'),
 
     setFileData: (state, { fileURL, rootPath, fileMap }) => {
       // TODO: create more elegant way of assigning these values
