@@ -8,6 +8,8 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
+import { traversePrint } from '@/utils/utils'
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
@@ -40,7 +42,7 @@ export default {
       // pmremGenerator: null // texture roughness values
 
       // Lighting
-      exposure: 1.0,
+      // ...
 
       // Grid
       gridHelper: null,
@@ -119,7 +121,7 @@ export default {
       this.renderer = new THREE.WebGLRenderer({ antialias: true })
       // // TODO: Needed or nah?
       // this.renderer.physicallyCorrectLights = true
-      // this.renderer.outputEncoding = THREE.sRGBEncoding
+      this.renderer.outputEncoding = this.sceneState.outputEncoding
       this.renderer.setClearColor(0xcccccc)
       this.renderer.setPixelRatio(window.devicePixelRatio) //
       this.renderer.setSize(el.clientWidth, el.clientHeight)
@@ -189,6 +191,78 @@ export default {
 
       // Controls
       // this.controls.handleResize() // TODO: learn what thats for
+    },
+
+    /**
+     * object = Scene object
+     */
+    setContent(object, clips) {
+      // TODO: Determine if needed
+      // this.reset()
+
+      const box = new THREE.Box3().setFromObject(object)
+      const size = box.getSize(new THREE.Vector3()).length()
+      const center = box.getCenter(new THREE.Vector3())
+
+      // this.controls.reset()
+
+      object.position.x += object.position.x - center.x
+      object.position.y += object.position.y - center.y
+      object.position.z += object.position.z - center.z
+
+      // this.controls.maxDistance = size * 10
+
+      this.defaultCamera.near = size / 1000 // 100
+      this.defaultCamera.far = size * 1000 // 100
+      this.defaultCamera.updateProjectionMatrix()
+
+      // if (this.options.cameraPosition) {
+      // this.defaultCamera.position.fromArray(this.options.cameraPosition)
+      // this.defaultCamera.lookAt(new THREE.Vector3())
+      // } else {
+      this.defaultCamera.position.copy(center)
+      this.defaultCamera.position.x += size / 2.0
+      this.defaultCamera.position.y += size / 5.0
+      this.defaultCamera.position.z += size / 2.0
+      this.defaultCamera.lookAt(center)
+      // }
+
+      // this.setCamera()
+
+      // AxesHelper
+      this.axesCamera.position.copy(this.defaultCamera.position)
+      this.axesCamera.lookAt(this.axesScene.position)
+      this.axesCamera.near = size / 100
+      this.axesCamera.far = size * 100
+      this.axesCamera.updateProjectionMatrix()
+      this.axesCorner.scale.set(size, size, size)
+
+      // this.controls.saveState()
+      // object.scale = new THREE.Vector3(100, 100, 100)
+
+      this.scene.add(object)
+      this.content = object
+
+      this.content.traverse(node => {
+        if (node.isMesh) {
+          node.material.depthWrite = !node.material.transparent
+        } else if (node.isLight) {
+          // TODO: reactivate when addLights is present
+          // this.sceneState.addLights = false
+        }
+      })
+
+      //
+
+      this.updateDisplay()
+      this.updateEncoding()
+
+      // TODO: figure out what this is for
+      // TODO: rename this.content to this.sceneInfo
+      window.content = this.content
+      console.info('[glTF Viewer] THREE.Scene exported as `window.content`.')
+      // console.dir(this.content)
+      traversePrint(this.content)
     },
 
     // TODO: deep-learn about loaders, managers, draco etc,
@@ -293,80 +367,6 @@ export default {
       })
     },
 
-    /**
-     * object = Scene object
-     */
-    setContent(object, clips) {
-      // this.clear();
-
-      const box = new THREE.Box3().setFromObject(object)
-      const size = box.getSize(new THREE.Vector3()).length()
-      const center = box.getCenter(new THREE.Vector3())
-
-      // this.controls.reset()
-
-      object.position.x += object.position.x - center.x
-      object.position.y += object.position.y - center.y
-      object.position.z += object.position.z - center.z
-
-      // this.controls.maxDistance = size * 10
-
-      this.defaultCamera.near = size / 1000 // 100
-      this.defaultCamera.far = size * 1000 // 100
-      this.defaultCamera.updateProjectionMatrix()
-
-      // if (this.options.cameraPosition) {
-      // this.defaultCamera.position.fromArray(this.options.cameraPosition)
-      // this.defaultCamera.lookAt(new THREE.Vector3())
-      // } else {
-      this.defaultCamera.position.copy(center)
-      this.defaultCamera.position.x += size / 2.0
-      this.defaultCamera.position.y += size / 5.0
-      this.defaultCamera.position.z += size / 2.0
-      this.defaultCamera.lookAt(center)
-      // }
-
-      // this.setCamera()
-
-      // AxesHelper
-      this.axesCamera.position.copy(this.defaultCamera.position)
-      this.axesCamera.lookAt(this.axesScene.position)
-      this.axesCamera.near = size / 100
-      this.axesCamera.far = size * 100
-      this.axesCamera.updateProjectionMatrix()
-      this.axesCorner.scale.set(size, size, size)
-
-      // this.controls.saveState()
-      // object.scale = new THREE.Vector3(100, 100, 100)
-
-      this.scene.add(object)
-      this.content = object
-
-      this.content.traverse(node => {
-        if (node.isMesh) {
-          node.material.depthWrite = !node.material.transparent
-        } else if (node.isLight) {
-          this.state.addLights = false
-        }
-      })
-
-      //
-
-      this.updateDisplay()
-      // this.updateControls()
-      // // Controls
-      // this.controls = new OrbitControls(
-      //   this.defaultCamera,
-      //   this.renderer.domElement
-      // )
-      //
-
-      // TODO: figure out what this is for
-      // window.content = this.content
-      // console.info('[glTF Viewer] THREE.Scene exported as `window.content`.')
-      // this.printGraph(this.content)
-    },
-
     addAxesScene() {
       const axesElement = this.$refs['axes']
       const { clientWidth, clientHeight } = axesElement
@@ -444,6 +444,14 @@ export default {
       this.renderer.toneMappingExposure = this.sceneState.exposure
     },
 
+    updateEncoding() {
+      // outputEncoding is an Enum of TextureEncodings
+      this.renderer.outputEncoding = Number(this.sceneState.outputEncoding)
+      this.traverseMaterials(this.content, material => {
+        material.needsUpdate = true
+      })
+    },
+
     traverseMaterials(object, callback) {
       object.traverse(node => {
         if (!node.isMesh) return
@@ -499,9 +507,11 @@ export default {
         case 'updateLighting':
           this.updateLighting()
           break
+        case 'updateEncoding':
+          this.updateEncoding()
+          break
 
         default:
-          // console.log(`Reacting to Default Update`)
           break
       }
     })

@@ -5,6 +5,8 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
+import { sRGBEncoding as sRGB, LinearEncoding as Linear } from 'three'
+
 import { GUI } from 'dat.gui'
 
 export default {
@@ -39,29 +41,36 @@ export default {
     formInteractionControls() {
       const interFolder = this.gui.addFolder('Interaction')
 
-      const controlCtrl = interFolder.add(this.sceneState, 'fpsControls')
-      controlCtrl.onChange(() => this.$store.commit('updateControls'))
+      interFolder
+        .add(this.sceneState, 'fpsControls')
+        .onChange(() => this.$store.commit('updateControls'))
     },
 
     formDisplayControls() {
       const displayFolder = this.gui.addFolder('Display')
 
       // gridController watches for 'grid' change in 'sceneState'
-      const gridCtrl = displayFolder.add(this.sceneState, 'grid')
       // gridController then calls some notifying mutation
       // that tells 'Scene' to call subscribed updateDisplay()
-      gridCtrl.onChange(() => this.$store.commit('updateDisplay'))
+      displayFolder
+        .add(this.sceneState, 'grid')
+        .onChange(() => this.$store.commit('updateDisplay'))
 
-      const wireframeCtrl = displayFolder.add(this.sceneState, 'wireframe')
-      wireframeCtrl.onChange(() => this.$store.commit('updateDisplay'))
+      displayFolder
+        .add(this.sceneState, 'wireframe')
+        .onChange(() => this.$store.commit('updateDisplay'))
+
+      displayFolder
+        .add(this.sceneState, 'outputEncoding', { sRGB, Linear })
+        .onChange(() => this.$store.commit('updateEncoding'))
     },
 
     formLightingControls() {
       const lightFolder = this.gui.addFolder('Lighting')
 
-      // TODO: try folder.add.onchange
-      const exposureCtrl = lightFolder.add(this.sceneState, 'exposure', 0, 2)
-      exposureCtrl.onChange(() => this.$store.commit('updateLighting'))
+      lightFolder
+        .add(this.sceneState, 'exposure', 0, 2)
+        .onChange(() => this.$store.commit('updateLighting'))
     }
   }
 }

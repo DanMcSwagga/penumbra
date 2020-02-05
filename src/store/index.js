@@ -2,15 +2,15 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 // import * as THREE from 'three'
+import { sRGBEncoding, LinearEncoding } from 'three'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    // isLoaded: false,
     showSpinner: false,
 
-    // File loading stuff
+    // File loading
     fileURL: '',
     rootPath: '',
     fileMap: {},
@@ -25,7 +25,8 @@ export default new Vuex.Store({
       wireframe: false,
 
       // Lighting
-      exposure: 1.0
+      exposure: 1.0,
+      outputEncoding: sRGBEncoding
     }
   },
 
@@ -42,6 +43,7 @@ export default new Vuex.Store({
     updateControls: state => console.log('~~ updateControls notifier'),
     updateDisplay: state => console.log('~~ updateDisplay notifier'),
     updateLighting: state => console.log('~~ updateLighting notifier'),
+    updateEncoding: state => console.log('~~ updateEncoding notifier'),
 
     setFileData: (state, { fileURL, rootPath, fileMap }) => {
       // TODO: create more elegant way of assigning these values
