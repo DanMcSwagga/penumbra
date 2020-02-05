@@ -39,6 +39,9 @@ export default {
       // mixer: null // animations
       // pmremGenerator: null // texture roughness values
 
+      // Lighting
+      exposure: 1.0,
+
       // Grid
       gridHelper: null,
 
@@ -436,6 +439,11 @@ export default {
       }
     },
 
+    updateLighting() {
+      // Exposure
+      this.renderer.toneMappingExposure = this.sceneState.exposure
+    },
+
     traverseMaterials(object, callback) {
       object.traverse(node => {
         if (!node.isMesh) return
@@ -456,16 +464,20 @@ export default {
       this.init()
       this.animate()
 
+      // TODO: figure out how to deactivate spinner if wrong input
+
       // Same as viewer.load().catch().then()
       this.loadModel()
         // On Error handler (should be same as in Viewer's onError)
         .catch(error => {
+          console.log('in error')
           let message = (error || {}).message || error.toString()
           window.alert(message)
           console.error(error)
         })
         // Then Handler
         .then(gltf => {
+          console.log('in cleanup')
           // Cleanup
           this.$store.commit('deactivateSpinner')
           if (typeof this.rootFile === 'object')
@@ -476,12 +488,21 @@ export default {
 
   created() {
     this.$store.subscribe((mutation, state) => {
-      if (mutation.type === 'updateDisplay') {
-        console.log(`Reacting to Display Update`)
-        this.updateDisplay()
-      } else if (mutation.type === 'updateControls') {
-        console.log(`Reacting to Controls Update`)
-        this.updateControls()
+      console.log(`Reacting to ${mutation.type} mutation`)
+      switch (mutation.type) {
+        case 'updateDisplay':
+          this.updateDisplay()
+          break
+        case 'updateControls':
+          this.updateControls()
+          break
+        case 'updateLighting':
+          this.updateLighting()
+          break
+
+        default:
+          // console.log(`Reacting to Default Update`)
+          break
       }
     })
   }

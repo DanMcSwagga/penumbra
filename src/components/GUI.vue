@@ -37,31 +37,31 @@ export default {
     },
 
     formInteractionControls() {
-      const dispayFolder = this.gui.addFolder('Interaction')
+      const interFolder = this.gui.addFolder('Interaction')
 
-      const controlController = dispayFolder.add(this.sceneState, 'fpsControls')
-      controlController.onChange(() => this.$store.commit('updateControls'))
+      const controlCtrl = interFolder.add(this.sceneState, 'fpsControls')
+      controlCtrl.onChange(() => this.$store.commit('updateControls'))
     },
 
     formDisplayControls() {
-      const dispayFolder = this.gui.addFolder('Display')
+      const displayFolder = this.gui.addFolder('Display')
 
       // gridController watches for 'grid' change in 'sceneState'
-      const gridController = dispayFolder.add(this.sceneState, 'grid')
+      const gridCtrl = displayFolder.add(this.sceneState, 'grid')
       // gridController then calls some notifying mutation
       // that tells 'Scene' to call subscribed updateDisplay()
-      gridController.onChange(() => this.$store.commit('updateDisplay'))
+      gridCtrl.onChange(() => this.$store.commit('updateDisplay'))
 
-      const wireframeController = dispayFolder.add(this.sceneState, 'wireframe')
-      wireframeController.onChange(() => this.$store.commit('updateDisplay'))
+      const wireframeCtrl = displayFolder.add(this.sceneState, 'wireframe')
+      wireframeCtrl.onChange(() => this.$store.commit('updateDisplay'))
     },
 
     formLightingControls() {
-      const dispayFolder = this.gui.addFolder('Lighting')
+      const lightFolder = this.gui.addFolder('Lighting')
 
-      const fakeState = { exposure: 1.0 }
-      const exposureController = dispayFolder.add(fakeState, 'exposure', 0, 2)
-      exposureController.onChange(() => /*this.updateDisplay()*/ {})
+      // TODO: try folder.add.onchange
+      const exposureCtrl = lightFolder.add(this.sceneState, 'exposure', 0, 2)
+      exposureCtrl.onChange(() => this.$store.commit('updateLighting'))
     }
   }
 }

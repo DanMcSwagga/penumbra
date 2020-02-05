@@ -14,10 +14,18 @@ export default new Vuex.Store({
     fileURL: '',
     rootPath: '',
     fileMap: {},
+
+    // GUI variables
     sceneState: {
+      // Interaction
+      fpsControls: false,
+
+      // Display
       grid: false,
       wireframe: false,
-      fpsControls: false
+
+      // Lighting
+      exposure: 1.0
     }
   },
 
@@ -31,12 +39,9 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
-    updateControls: state => {
-      console.log('~~ Notifying from store about updateControls')
-    },
-    updateDisplay: state => {
-      console.log('~~ Notifying from store about updateDisplay')
-    },
+    updateControls: state => console.log('~~ updateControls notifier'),
+    updateDisplay: state => console.log('~~ updateDisplay notifier'),
+    updateLighting: state => console.log('~~ updateLighting notifier'),
 
     setFileData: (state, { fileURL, rootPath, fileMap }) => {
       // TODO: create more elegant way of assigning these values
