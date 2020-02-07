@@ -20,12 +20,11 @@ __________
 
 # Demo
 
-<!-- [Demo/Site](https://hotvolley.netlify.com/) -->
-<i>Currently unavailable</i>
+[Demo/Site](https://penumbra3d.netlify.com/)
 
 # Layout
 
-<i>To be added soon</i>
+<i>To be added</i>
 
 # Quick start
 
