@@ -19,6 +19,7 @@ export default new Vuex.Store({
     sceneState: {
       // Interaction
       fpsControls: false,
+      cameraAutoplay: false,
 
       // Display
       grid: false,
@@ -42,6 +43,7 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
+    updateCamera: () => console.log('~~ updateCamera notifier'),
     updateControls: () => console.log('~~ updateControls notifier'),
     updateDisplay: () => console.log('~~ updateDisplay notifier'),
     updateLighting: () => /* console.log('~~ updateLighting notifier') */ {},

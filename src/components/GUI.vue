@@ -42,17 +42,20 @@ export default {
     formInteractionControls() {
       const interFolder = this.gui.addFolder('Interaction')
 
+      // Watches for 'fpsControls' change in 'sceneState', then calls a
+      // notifier-mutation, so 'Scene' calls subscribed 'updateControls()'
       interFolder
         .add(this.sceneState, 'fpsControls')
         .onChange(() => this.$store.commit('updateControls'))
+
+      interFolder
+        .add(this.sceneState, 'cameraAutoplay')
+        .onChange(() => this.$store.commit('updateCamera'))
     },
 
     formDisplayControls() {
       const displayFolder = this.gui.addFolder('Display')
 
-      // gridController watches for 'grid' change in 'sceneState'
-      // gridController then calls some notifying mutation
-      // that tells 'Scene' to call subscribed updateDisplay()
       displayFolder
         .add(this.sceneState, 'grid')
         .onChange(() => this.$store.commit('updateDisplay'))

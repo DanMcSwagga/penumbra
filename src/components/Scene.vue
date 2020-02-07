@@ -82,7 +82,6 @@ export default {
       // Scene
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color(0xa0a0a0)
-      // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000)
 
       // Camera
       // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
@@ -106,15 +105,14 @@ export default {
       // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
       // this.pmremGenerator.compileEquirectangularShader()
 
+      // Controls
       this.updateControls()
-      // // TODO: optional - auto rotation using controls
-      // this.controls.autoRotate = false
-      // this.controls.autoRotateSpeed = -5
-      // this.controls.screenSpacePanning = true
+      this.controls.screenSpacePanning = true // camera pans in screen space
+      this.controls.autoRotate = this.sceneState.cameraAutoplay
+      this.controls.autoRotateSpeed = -5
 
       el.appendChild(this.renderer.domElement)
 
-      //
       // TODO: create a separate component for the axisScene
       this.addAxesScene()
 
@@ -383,7 +381,10 @@ export default {
       }
 
       // Add all wireframe data to the viewer content
+      // material: MeshStandardMaterial (has opacity, color, etc)
+      // TODO: think of ways of controlling wireframes from GUI (Sketchfab)
       this.traverseMaterials(this.content, material => {
+        // console.dir(material)
         material.wireframe = this.sceneState.wireframe
       })
 
@@ -420,6 +421,10 @@ export default {
           this.axesRenderer.clear()
         }
       }
+    },
+
+    updateCamera() {
+      this.controls.autoRotate = this.sceneState.cameraAutoplay
     },
 
     updateControls() {
@@ -546,21 +551,16 @@ export default {
 
   created() {
     this.$store.subscribe((mutation, state) => {
+      // console.log(`Reacting to ${mutation.type} mutation`)
+
+      // Assigning only certain types of mutations
       switch (mutation.type) {
         case 'updateDisplay':
-          console.log(`Reacting to ${mutation.type} mutation`)
-          this.updateDisplay()
-          break
+        case 'updateCamera':
         case 'updateControls':
-          console.log(`Reacting to ${mutation.type} mutation`)
-          this.updateControls()
-          break
         case 'updateLighting':
-          this.updateLighting()
-          break
         case 'updateEncoding':
-          console.log(`Reacting to ${mutation.type} mutation`)
-          this.updateEncoding()
+          this[mutation.type]()
           break
 
         default:
