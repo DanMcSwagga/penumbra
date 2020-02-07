@@ -23,6 +23,7 @@ export default new Vuex.Store({
       // Display
       grid: false,
       wireframe: false,
+      skeleton: false,
 
       // Lighting
       enableLighting: true,

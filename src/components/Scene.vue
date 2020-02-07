@@ -32,7 +32,6 @@ export default {
       defaultCamera: null,
       scene: null,
       renderer: null,
-      lights: [],
       controls: null,
 
       content: null,
@@ -42,7 +41,10 @@ export default {
       // pmremGenerator: null // texture roughness values
 
       // Lighting
-      // ...
+      lights: [],
+
+      // Skeleton
+      skeletonHelpers: [],
 
       // Grid
       gridHelper: null,
@@ -375,8 +377,28 @@ export default {
     },
 
     updateDisplay() {
+      // Remove skeleton geometry if present
+      if (this.skeletonHelpers.length) {
+        this.skeletonHelpers.forEach(helper => this.scene.remove(helper))
+      }
+
+      // Add all wireframe data to the viewer content
       this.traverseMaterials(this.content, material => {
         material.wireframe = this.sceneState.wireframe
+      })
+
+      // Form the skeleton base and add it to the scene
+      this.content.traverse(node => {
+        if (node.isMesh && node.skeleton && this.sceneState.skeleton) {
+          const helper = new THREE.SkeletonHelper(node.skeleton.bones[0].parent)
+          // Due to limitations of the OpenGL Core Profile with
+          // the WebGL renderer on most platforms linewidth will always be 1
+          // regardless of the set value.
+          // helper.material.linewidth = 5 // still is 1
+
+          this.scene.add(helper)
+          this.skeletonHelpers.push(helper)
+        }
       })
 
       // TODO: separate axesScene/Helper and gridHelper

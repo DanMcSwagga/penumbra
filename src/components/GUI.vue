@@ -60,6 +60,10 @@ export default {
       displayFolder
         .add(this.sceneState, 'wireframe')
         .onChange(() => this.$store.commit('updateDisplay'))
+
+      displayFolder
+        .add(this.sceneState, 'skeleton')
+        .onChange(() => this.$store.commit('updateDisplay'))
     },
 
     formLightingControls() {
