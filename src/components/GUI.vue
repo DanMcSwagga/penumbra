@@ -69,16 +69,54 @@ export default {
         .onChange(() => this.$store.commit('updateDisplay'))
     },
 
+    formAnimationControls() {
+      const animFolder = this.gui.addFolder('Animation')
+      // Hide folder unless there are animations present
+      // animFolder.domElement.style.display = 'none'
+
+      animFolder.add({ play: () => this.$store.commit('playClips') }, 'play')
+
+      animFolder
+        .add(this.sceneState, 'playbackSpeed', 0, 1)
+        .onChange(speed => this.$store.commit('updateAnimation', speed))
+    },
+
     formLightingControls() {
       const lightFolder = this.gui.addFolder('Lighting')
 
       lightFolder
-        .add(this.sceneState, 'enableLighting')
+        .addColor(this.sceneState, 'ambientColor')
+        .listen()
+        .onChange(() => this.$store.commit('updateLighting'))
+
+      lightFolder
+        .addColor(this.sceneState, 'directColor')
+        .listen()
+        .onChange(() => this.$store.commit('updateLighting'))
+
+      lightFolder
+        .add(this.sceneState, 'ambientIntensity', 0, 2)
+        .listen()
+        .onChange(() => this.$store.commit('updateLighting'))
+
+      lightFolder
+        .add(this.sceneState, 'directIntensity', 0, 4)
         .listen()
         .onChange(() => this.$store.commit('updateLighting'))
 
       lightFolder
         .add(this.sceneState, 'exposure', 0, 2)
+        .listen()
+        .onChange(() => this.$store.commit('updateLighting'))
+
+      lightFolder.add(
+        { reset: () => this.$store.commit('resetLighting') },
+        'reset'
+      )
+
+      lightFolder
+        .add(this.sceneState, 'disableLighting')
+        .listen()
         .onChange(() => this.$store.commit('updateLighting'))
     },
 

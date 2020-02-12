@@ -37,11 +37,15 @@ export default {
       content: null,
 
       clock: null,
-      // mixer: null // animations
       // pmremGenerator: null // texture roughness values
 
       // Lighting
       lights: [],
+
+      // Animation
+      clips: null,
+      mixer: null,
+      animControls: [],
 
       // Skeleton
       skeletonHelpers: [],
@@ -109,7 +113,7 @@ export default {
       this.updateControls()
       this.controls.screenSpacePanning = true // camera pans in screen space
       this.controls.autoRotate = this.sceneState.cameraAutoplay
-      this.controls.autoRotateSpeed = -5
+      this.controls.autoRotateSpeed = -3
 
       el.appendChild(this.renderer.domElement)
 
@@ -125,6 +129,9 @@ export default {
 
     animate() {
       requestAnimationFrame(this.animate)
+
+      const delta = this.clock.getDelta()
+      if (this.mixer) this.mixer.update(delta)
 
       this.render()
     },
@@ -212,14 +219,13 @@ export default {
       this.scene.add(object)
       this.content = object
 
-      // this.sceneState.enableLighting = true
-      this.$store.commit('set', { enableLighting: true })
+      this.$store.commit('set', { disableLighting: false })
 
       this.content.traverse(node => {
         if (node.isMesh) {
           node.material.depthWrite = !node.material.transparent
         } else if (node.isLight) {
-          this.$store.commit('set', { enableLighting: false })
+          this.$store.commit('set', { disableLighting: true })
         }
       })
 
@@ -229,12 +235,77 @@ export default {
       this.updateEncoding()
       this.updateDisplay()
 
+      this.setClips(clips)
+      this.resetGUI()
+
       // TODO: figure out what this is for
       // TODO: rename this.content to this.sceneInfo
       window.content = this.content
-      console.info('[glTF Viewer] THREE.Scene exported as `window.content`.')
+      console.info('THREE.Scene exported as `window.content`')
       // console.dir(this.content)
       traversePrint(this.content)
+    },
+
+    setClips(clips) {
+      if (this.mixer) {
+        this.mixer.stopAllAction()
+        this.mixer.uncacheRoot(this.mixer.getRoot())
+        this.mixer = null
+      }
+
+      this.clips = clips
+      if (!clips.length) return
+
+      this.mixer = new THREE.AnimationMixer(this.content)
+    },
+
+    playClips() {
+      this.clips.forEach(clip => {
+        this.mixer
+          .clipAction(clip)
+          .reset()
+          .play()
+        // this.state.actionStates[clip.name] = true
+      })
+    },
+
+    resetGUI() {
+      this.animControls.forEach(ctrl => ctrl.remove())
+      this.animControls.length = 0
+      // TODO: create a global store's attribute whether to display animFolder
+      // this.animFolder.domElement.style.display = 'none'
+
+      // Animations playout
+      if (this.clips.length) {
+        // this.animFolder.domElement.style.display = ''
+        // const actionStates = (this.state.actionStates = {})
+        this.clips.forEach((clip, clipIndex) => {
+          // Autoplay the first clip.
+          let action
+          // if (clipIndex === 0) {
+          // actionStates[clip.name] = true
+          action = this.mixer.clipAction(clip)
+          action.setEffectiveTimeScale(1)
+          action.play()
+          // } else {
+          // actionStates[clip.name] = false
+          // }
+
+          // // Play other clips when enabled.
+          // const ctrl = this.animFolder.add(actionStates, clip.name).listen()
+          // ctrl.onChange(playAnimation => {
+          //   action = action || this.mixer.clipAction(clip)
+          //   action.setEffectiveTimeScale(1)
+          //   playAnimation ? action.play() : action.stop()
+          // })
+          // this.animCtrls.push(ctrl)
+        })
+      }
+    },
+
+    updateAnimation() {
+      console.log('speed in update animation: ', this.sceneState.playbackSpeed)
+      if (this.mixer) this.mixer.timeScale = this.sceneState.playbackSpeed
     },
 
     // TODO: deep-learn about loaders, managers, draco etc,
@@ -255,6 +326,7 @@ export default {
             // const scene = object.scene || object.scenes[0]
             // const clips = object.animations || []
 
+            // !!! IMPORTANT: special handling for animations in FBX
             // // Animation
             // mixer = new THREE.AnimationMixer(object)
             // let action = mixer.clipAction(object.animations[0])
@@ -457,6 +529,11 @@ export default {
       })
     },
 
+    resetLighting() {
+      this.$store.commit('setDefaultLighting')
+      this.updateLighting()
+    },
+
     updateLighting() {
       const scst = this.sceneState
       const lits = this.lights
@@ -465,16 +542,16 @@ export default {
         // const lightHemi = new THREE.HemisphereLight();
 
         const lightAmbient = new THREE.AmbientLight(
-          0xffffff, // scst.ambientColor,
-          0.3 // scst.ambientIntensity
+          scst.ambientColor,
+          scst.ambientIntensity
         )
         lightAmbient.name = 'ambient_light'
 
         const lightDirectional = new THREE.DirectionalLight(
-          0xffffff, // scst.directColor,
-          0.8 * Math.PI // scst.directIntensity
+          scst.directColor,
+          scst.directIntensity
         )
-        lightDirectional.position.set(0.5, 0, 0.866) // ~60º
+        lightDirectional.position.set(0.5, 0, 0.866) // appx. 60 degrees
         lightDirectional.name = 'directional_light'
 
         this.defaultCamera.add(lightAmbient, lightDirectional)
@@ -486,17 +563,17 @@ export default {
         lits.length = 0
       }
 
-      const applyDefaultLighting = () => {
-        lits[0].color.setHex(0xffffff)
-        lits[0].intensity = 0.3
-        lits[1].color.setHex(0xffffff)
-        lits[1].intensity = 0.8 * Math.PI
+      const applyLighting = () => {
+        lits[0].color.setHex(scst.ambientColor) // ambient
+        lits[0].intensity = scst.ambientIntensity
+        lits[1].color.setHex(scst.directColor) // directional
+        lits[1].intensity = scst.directIntensity
       }
 
       // Lighting control
-      if (scst.enableLighting && !lits.length) {
+      if (!scst.disableLighting && !lits.length) {
         addLighting()
-      } else if (!scst.enableLighting && lits.length) {
+      } else if (scst.disableLighting && lits.length) {
         removeLighting()
       }
 
@@ -505,7 +582,7 @@ export default {
 
       // Default lighting
       if (lits.length === 2) {
-        applyDefaultLighting()
+        applyLighting()
       }
     },
 
@@ -560,6 +637,9 @@ export default {
         case 'updateControls':
         case 'updateLighting':
         case 'updateEncoding':
+        case 'updateAnimation':
+        case 'playClips':
+        case 'resetLighting':
           this[mutation.type]()
           break
 
