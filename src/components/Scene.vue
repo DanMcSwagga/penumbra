@@ -521,11 +521,35 @@ export default {
       }
     },
 
+    // TODO: Separate output and texture encodings
+    // updateEncoding() {
+    //   const outEnc = this.sceneState.outputEncoding
+    //   const textEnc = this.sceneState.textureEncoding
+
+    //   // outputEncoding is an Enum of TextureEncodings
+    //   this.renderer.outputEncoding = Number(outEnc)
+    //   this.traverseMaterials(this.content, material => {
+    //     material.needsUpdate = true
+    //   })
+
+    //   // textureEncoding
+    //   this.traverseMaterials(this.content, material => {
+    //     if (material.map) material.map.encoding = Number(textEnc)
+    //     if (material.emissiveMap)
+    //       material.emissiveMap.encoding = Number(textEnc)
+    //     if (material.map || material.emissiveMap) material.needsUpdate = true
+    //   })
+    // },
+
     updateEncoding() {
-      // outputEncoding is an Enum of TextureEncodings
-      this.renderer.outputEncoding = Number(this.sceneState.outputEncoding)
+      const outEncEnum = Number(this.sceneState.outputEncoding)
+      const textEncEnum = Number(this.sceneState.textureEncoding)
+
+      this.renderer.outputEncoding = outEncEnum
       this.traverseMaterials(this.content, material => {
-        material.needsUpdate = true
+        if (material.map) material.map.encoding = textEncEnum
+        if (material.emissiveMap) material.emissiveMap.encoding = textEncEnum
+        if (material.map || material.emissiveMap) material.needsUpdate = true
       })
     },
 

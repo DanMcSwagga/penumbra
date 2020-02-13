@@ -38,7 +38,8 @@ export default new Vuex.Store({
       disableLighting: false,
 
       // Encoding
-      outputEncoding: sRGBEncoding
+      outputEncoding: sRGBEncoding,
+      textureEncoding: sRGBEncoding
     }
   },
 

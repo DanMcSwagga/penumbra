@@ -126,6 +126,10 @@ export default {
       encodingFolder
         .add(this.sceneState, 'outputEncoding', { sRGB, Linear })
         .onChange(() => this.$store.commit('updateEncoding'))
+
+      encodingFolder
+        .add(this.sceneState, 'textureEncoding', { sRGB, Linear })
+        .onChange(() => this.$store.commit('updateEncoding'))
     }
   }
 }
