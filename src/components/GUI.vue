@@ -32,6 +32,7 @@ export default {
 
       this.formInteractionControls()
       this.formDisplayControls()
+      this.formAnimationControls()
       this.formLightingControls()
       this.formEncodingControls()
 

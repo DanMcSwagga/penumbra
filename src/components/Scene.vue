@@ -133,15 +133,14 @@ export default {
       const delta = this.clock.getDelta()
       if (this.mixer) this.mixer.update(delta)
 
-      this.render()
+      this.render(delta)
     },
 
-    render() {
+    render(delta) {
       this.renderer.render(this.scene, this.defaultCamera)
 
       // required if controls.enableDamping or controls.autoRotate are set to true
-      // this.controls.update(this.clock.getDelta())
-      if (this.controls.enabled) this.controls.update(this.clock.getDelta())
+      if (this.controls.enabled) this.controls.update(delta)
 
       // Adds axisScene
       if (this.sceneState.grid) {
@@ -285,7 +284,6 @@ export default {
           // if (clipIndex === 0) {
           // actionStates[clip.name] = true
           action = this.mixer.clipAction(clip)
-          action.setEffectiveTimeScale(1)
           action.play()
           // } else {
           // actionStates[clip.name] = false
