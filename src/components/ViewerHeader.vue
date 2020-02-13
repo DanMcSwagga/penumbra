@@ -1,10 +1,8 @@
 <template>
   <header>
     <img class="logo" :src="logo" alt="Penumbra Logo" />
-    <span class="separator"> | </span>
-    <h1 class="item item_hoverable"><a href="/">3D Model Viewer</a></h1>
-    <span class="separator"> | </span>
-    <span class="item">Currently supports GLTF/GLB and FBX files</span>
+    <span class="separator">|</span>
+    <span class="item">Currently supports GLTF/GLB files</span>
     <!-- <span class="separator"> | </span> -->
     <!-- <button class="item">Load Sample</button> -->
   </header>
@@ -22,8 +20,10 @@ export default {
 
 <style lang="scss" scoped>
 header {
+  position: fixed;
+
   display: flex;
-  background: #353535;
+  // background-color: #353535;
   padding: 0 2em;
   height: 4rem;
   line-height: 4rem;
@@ -31,7 +31,6 @@ header {
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
-  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.3);
   z-index: 1;
 
   -webkit-app-region: drag;
@@ -39,15 +38,15 @@ header {
   h1,
   .item,
   .separator {
-    color: #f5f5f5;
+    color: #1e1e1e;
     font-weight: 300;
     line-height: 4rem;
     margin: 0;
   }
 
   .logo {
-    height: 28px;
-    width: 28px;
+    height: 32px;
+    width: 32px;
     margin: 0 1em;
   }
   h1 {
@@ -62,7 +61,7 @@ header {
 
   .item {
     padding: 0 1em;
-    font-size: 0.8rem;
+    font-size: 1rem;
     text-decoration: none;
     transition: background ease 0.3s;
 
@@ -93,7 +92,6 @@ header {
 
   .separator {
     margin: 0 0.2em;
-    opacity: 0.2;
   }
 }
 </style>
