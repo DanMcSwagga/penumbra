@@ -8,7 +8,11 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
-import { traversePrint } from '@/utils/utils'
+import { traversePrint, traverseMaterials } from '@/utils/utils'
+
+import updateDisplay from './Display'
+import updateControls from './Controls'
+import updateEncoding from './Encoding'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -445,52 +449,7 @@ export default {
     },
 
     updateDisplay() {
-      // Remove skeleton geometry if present
-      if (this.skeletonHelpers.length) {
-        this.skeletonHelpers.forEach(helper => this.scene.remove(helper))
-      }
-
-      // Add all wireframe data to the viewer content
-      // material: MeshStandardMaterial (has opacity, color, etc)
-      // TODO: think of ways of controlling wireframes from GUI (Sketchfab)
-      this.traverseMaterials(this.content, material => {
-        // console.dir(material)
-        material.wireframe = this.sceneState.wireframe
-      })
-
-      // Form the skeleton base and add it to the scene
-      this.content.traverse(node => {
-        if (node.isMesh && node.skeleton && this.sceneState.skeleton) {
-          const helper = new THREE.SkeletonHelper(node.skeleton.bones[0].parent)
-          // Due to limitations of the OpenGL Core Profile with
-          // the WebGL renderer on most platforms linewidth will always be 1
-          // regardless of the set value.
-          // helper.material.linewidth = 5 // still is 1
-
-          this.scene.add(helper)
-          this.skeletonHelpers.push(helper)
-        }
-      })
-
-      // TODO: separate axesScene/Helper and gridHelper
-      if (this.sceneState.grid !== Boolean(this.gridHelper)) {
-        if (this.sceneState.grid) {
-          this.gridHelper = new THREE.GridHelper()
-          // TODO: add following as an option to GUI
-          // this.gridHelper.material.transparent = true
-          this.axesHelper = new THREE.AxesHelper()
-          this.axesHelper.renderOrder = 999
-          this.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
-          this.scene.add(this.gridHelper)
-          this.scene.add(this.axesHelper)
-        } else {
-          this.scene.remove(this.gridHelper)
-          this.scene.remove(this.axesHelper)
-          this.gridHelper = null
-          this.axesHelper = null
-          this.axesRenderer.clear()
-        }
-      }
+      updateDisplay(this.$data, this.sceneState)
     },
 
     updateCamera() {
@@ -498,57 +457,11 @@ export default {
     },
 
     updateControls() {
-      if (this.controls) this.controls.dispose()
-      if (this.sceneState.fpsControls) {
-        // this.controls = new PointerLockControls(
-        //   this.defaultCamera,
-        //   this.renderer.domElement
-        // )
-        // console.dir(this.controls)
-        this.controls = new FirstPersonControls(
-          this.defaultCamera,
-          this.renderer.domElement
-        )
-        this.controls.movementSpeed = 10
-        this.controls.lookSpeed = 0.1
-      } else {
-        this.controls = new OrbitControls(
-          this.defaultCamera,
-          this.renderer.domElement
-        )
-      }
+      updateControls(this.$data, this.sceneState)
     },
 
-    // TODO: Separate output and texture encodings
-    // updateEncoding() {
-    //   const outEnc = this.sceneState.outputEncoding
-    //   const textEnc = this.sceneState.textureEncoding
-
-    //   // outputEncoding is an Enum of TextureEncodings
-    //   this.renderer.outputEncoding = Number(outEnc)
-    //   this.traverseMaterials(this.content, material => {
-    //     material.needsUpdate = true
-    //   })
-
-    //   // textureEncoding
-    //   this.traverseMaterials(this.content, material => {
-    //     if (material.map) material.map.encoding = Number(textEnc)
-    //     if (material.emissiveMap)
-    //       material.emissiveMap.encoding = Number(textEnc)
-    //     if (material.map || material.emissiveMap) material.needsUpdate = true
-    //   })
-    // },
-
     updateEncoding() {
-      const outEncEnum = Number(this.sceneState.outputEncoding)
-      const textEncEnum = Number(this.sceneState.textureEncoding)
-
-      this.renderer.outputEncoding = outEncEnum
-      this.traverseMaterials(this.content, material => {
-        if (material.map) material.map.encoding = textEncEnum
-        if (material.emissiveMap) material.emissiveMap.encoding = textEncEnum
-        if (material.map || material.emissiveMap) material.needsUpdate = true
-      })
+      updateEncoding(this.$data, this.sceneState)
     },
 
     resetLighting() {
@@ -606,16 +519,6 @@ export default {
       if (lits.length === 2) {
         applyLighting()
       }
-    },
-
-    traverseMaterials(object, callback) {
-      object.traverse(node => {
-        if (!node.isMesh) return
-        const materials = Array.isArray(node.material)
-          ? node.material
-          : [node.material]
-        materials.forEach(callback)
-      })
     }
   },
 
@@ -662,6 +565,7 @@ export default {
         case 'updateAnimation':
         case 'playClips':
         case 'resetLighting':
+          // console.log(`Reacting to ${mutation.type} mutation`)
           this[mutation.type]()
           break
 

@@ -1,7 +1,10 @@
 <template>
   <div class="placeholder">
     <div class="placeholder-label">
-      <p>Drag FBX or GLTF file/folder here</p>
+      <p>
+        Drag
+        <b>type supported</b> 3D file/folder here
+      </p>
     </div>
     <div class="upload-btn">
       <input
@@ -12,7 +15,7 @@
         :ref="'file-input'"
       />
       <label for="file-input">
-        <span>Upload</span>
+        <span>Or Click Here</span>
       </label>
     </div>
   </div>

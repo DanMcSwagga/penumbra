@@ -8,4 +8,19 @@ const traversePrint = node => {
   console.groupEnd()
 }
 
-export { traversePrint }
+/**
+ * Traverses through an object's materials applying specified callback
+ * @param {Object} object traversible object
+ * @param {Function} callback applied to each node of the object
+ */
+const traverseMaterials = (object, callback) => {
+  object.traverse(node => {
+    if (!node.isMesh) return
+    const materials = Array.isArray(node.material)
+      ? node.material
+      : [node.material]
+    materials.forEach(callback)
+  })
+}
+
+export { traversePrint, traverseMaterials }
