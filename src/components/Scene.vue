@@ -13,6 +13,11 @@ import { traversePrint, traverseMaterials } from '@/utils/utils'
 import updateDisplay from './Display'
 import updateControls from './Controls'
 import updateEncoding from './Encoding'
+import updateAnimation, {
+  setClips,
+  playClips,
+  playAnimations
+} from './Animation'
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -26,7 +31,13 @@ export default {
   name: 'scene',
 
   computed: {
-    ...mapState(['fileURL', 'rootPath', 'fileMap', 'sceneState'])
+    ...mapState([
+      'fileURL',
+      'rootPath',
+      'fileMap',
+      'visibleFolders',
+      'sceneState'
+    ])
   },
 
   // TODO: !!!IMPORTANT!!! Refactor everything regarding viewer
@@ -77,12 +88,6 @@ export default {
       this.content = null // TODO: needed??
     },
 
-    // initState() {
-    //   this.localState = {
-    //     grid: false
-    //   }
-    // },
-
     init() {
       // const el = document.getElementById('scene')
       const el = this.$refs['scene']
@@ -106,7 +111,7 @@ export default {
       this.renderer.physicallyCorrectLights = true
       this.renderer.outputEncoding = this.sceneState.outputEncoding
       this.renderer.setClearColor(0xcccccc)
-      this.renderer.setPixelRatio(window.devicePixelRatio) //
+      this.renderer.setPixelRatio(window.devicePixelRatio)
       this.renderer.setSize(el.clientWidth, el.clientHeight)
       // this.renderer.shadowMap.enabled = true //
 
@@ -237,6 +242,7 @@ export default {
       this.updateLighting()
       this.updateEncoding()
       this.updateDisplay()
+      this.updateAnimation()
 
       this.setClips(clips)
       this.resetGUI()
@@ -250,64 +256,26 @@ export default {
     },
 
     setClips(clips) {
-      if (this.mixer) {
-        this.mixer.stopAllAction()
-        this.mixer.uncacheRoot(this.mixer.getRoot())
-        this.mixer = null
-      }
-
-      this.clips = clips
-      if (!clips.length) return
-
-      this.mixer = new THREE.AnimationMixer(this.content)
+      setClips(this.$data, clips)
     },
 
     playClips() {
-      this.clips.forEach(clip => {
-        this.mixer
-          .clipAction(clip)
-          .reset()
-          .play()
-        // this.state.actionStates[clip.name] = true
-      })
+      playClips(this.$data)
     },
 
     resetGUI() {
       this.animControls.forEach(ctrl => ctrl.remove())
       this.animControls.length = 0
+
       // TODO: create a global store's attribute whether to display animFolder
       // this.animFolder.domElement.style.display = 'none'
 
       // Animations playout
-      if (this.clips.length) {
-        // this.animFolder.domElement.style.display = ''
-        // const actionStates = (this.state.actionStates = {})
-        this.clips.forEach((clip, clipIndex) => {
-          // Autoplay the first clip.
-          let action
-          // if (clipIndex === 0) {
-          // actionStates[clip.name] = true
-          action = this.mixer.clipAction(clip)
-          action.play()
-          // } else {
-          // actionStates[clip.name] = false
-          // }
-
-          // // Play other clips when enabled.
-          // const ctrl = this.animFolder.add(actionStates, clip.name).listen()
-          // ctrl.onChange(playAnimation => {
-          //   action = action || this.mixer.clipAction(clip)
-          //   action.setEffectiveTimeScale(1)
-          //   playAnimation ? action.play() : action.stop()
-          // })
-          // this.animCtrls.push(ctrl)
-        })
-      }
+      playAnimations(this.$data)
     },
 
     updateAnimation() {
-      console.log('speed in update animation: ', this.sceneState.playbackSpeed)
-      if (this.mixer) this.mixer.timeScale = this.sceneState.playbackSpeed
+      updateAnimation(this.$data, this.sceneState)
     },
 
     // TODO: deep-learn about loaders, managers, draco etc,

@@ -15,6 +15,11 @@ export default new Vuex.Store({
     rootPath: '',
     fileMap: {},
 
+    // Visibility control for specific GUI folders
+    visibleFolders: {
+      animations: ''
+    },
+
     // GUI variables
     sceneState: {
       // Interaction
