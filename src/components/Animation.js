@@ -1,5 +1,3 @@
-import { traverseMaterials } from '../utils/utils'
-
 import { AnimationMixer } from 'three'
 
 /**

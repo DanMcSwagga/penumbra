@@ -13,6 +13,7 @@ import { traversePrint, traverseMaterials } from '@/utils/utils'
 import updateDisplay from './Display'
 import updateControls from './Controls'
 import updateEncoding from './Encoding'
+import updateLighting from './Lighting'
 import updateAnimation, {
   setClips,
   playClips,
@@ -174,7 +175,7 @@ export default {
       // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
 
       // Controls
-      // this.controls.handleResize() // TODO: learn what thats for
+      this.controls.handleResize()
     },
 
     /**
@@ -438,55 +439,7 @@ export default {
     },
 
     updateLighting() {
-      const scst = this.sceneState
-      const lits = this.lights
-
-      const addLighting = () => {
-        // const lightHemi = new THREE.HemisphereLight();
-
-        const lightAmbient = new THREE.AmbientLight(
-          scst.ambientColor,
-          scst.ambientIntensity
-        )
-        lightAmbient.name = 'ambient_light'
-
-        const lightDirectional = new THREE.DirectionalLight(
-          scst.directColor,
-          scst.directIntensity
-        )
-        lightDirectional.position.set(0.5, 0, 0.866) // appx. 60 degrees
-        lightDirectional.name = 'directional_light'
-
-        this.defaultCamera.add(lightAmbient, lightDirectional)
-        lits.push(lightAmbient, lightDirectional)
-      }
-
-      const removeLighting = () => {
-        lits.forEach(light => light.parent.remove(light))
-        lits.length = 0
-      }
-
-      const applyLighting = () => {
-        lits[0].color.setHex(scst.ambientColor) // ambient
-        lits[0].intensity = scst.ambientIntensity
-        lits[1].color.setHex(scst.directColor) // directional
-        lits[1].intensity = scst.directIntensity
-      }
-
-      // Lighting control
-      if (!scst.disableLighting && !lits.length) {
-        addLighting()
-      } else if (scst.disableLighting && lits.length) {
-        removeLighting()
-      }
-
-      // Exposure
-      this.renderer.toneMappingExposure = this.sceneState.exposure
-
-      // Default lighting
-      if (lits.length === 2) {
-        applyLighting()
-      }
+      updateLighting(this.$data, this.sceneState)
     }
   },
 
@@ -523,7 +476,7 @@ export default {
     this.$store.subscribe((mutation, state) => {
       // console.log(`Reacting to ${mutation.type} mutation`)
 
-      // Assigning only certain types of mutations
+      // Assign only certain types of mutations, allowing pitfall
       switch (mutation.type) {
         case 'updateDisplay':
         case 'updateCamera':
