@@ -10,7 +10,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 
 import { traversePrint, traverseMaterials } from '@/utils/utils'
 
-import updateDisplay from './Display'
+import updateDisplay, { addAxesScene } from './Display'
 import updateControls from './Controls'
 import updateEncoding from './Encoding'
 import updateLighting from './Lighting'
@@ -73,6 +73,7 @@ export default {
       axesHelper: null,
       axesRenderer: null,
       axesCamera: null,
+      axesCorner: null,
       axesScene: null
     }
   },
@@ -86,6 +87,7 @@ export default {
       this.clock = new THREE.Clock()
       this.lights = []
       this.gridHelper = null
+      this.axesHelper = null
       this.content = null // TODO: needed??
     },
 
@@ -153,7 +155,7 @@ export default {
       if (this.controls.enabled) this.controls.update(delta)
 
       // Adds axisScene
-      if (this.sceneState.grid) {
+      if (this.sceneState.axes) {
         this.axesCamera.position.copy(this.defaultCamera.position)
         this.axesCamera.lookAt(this.axesScene.position)
         this.axesRenderer.render(this.axesScene, this.axesCamera)
@@ -394,27 +396,7 @@ export default {
     },
 
     addAxesScene() {
-      const axesElement = this.$refs['axes']
-      const { clientWidth, clientHeight } = axesElement
-
-      this.axesScene = new THREE.Scene()
-      this.axesCamera = new THREE.PerspectiveCamera(
-        50,
-        clientWidth / clientHeight,
-        0.1,
-        10
-      )
-      this.axesScene.add(this.axesCamera)
-
-      this.axesRenderer = new THREE.WebGLRenderer({ alpha: true })
-      this.axesRenderer.setPixelRatio(window.devicePixelRatio)
-      this.axesRenderer.setSize(clientWidth, clientHeight)
-
-      this.axesCamera.up = this.defaultCamera.up
-
-      this.axesCorner = new THREE.AxesHelper(5)
-      this.axesScene.add(this.axesCorner)
-      axesElement.appendChild(this.axesRenderer.domElement)
+      addAxesScene(this.$data, this.$refs['axes'])
     },
 
     updateDisplay() {

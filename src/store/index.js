@@ -28,6 +28,7 @@ export default new Vuex.Store({
 
       // Display
       grid: false,
+      axes: false,
       wireframe: false,
       skeleton: false,
 

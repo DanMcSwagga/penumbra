@@ -62,6 +62,10 @@ export default {
         .onChange(() => this.$store.commit('updateDisplay'))
 
       displayFolder
+        .add(this.sceneState, 'axes')
+        .onChange(() => this.$store.commit('updateDisplay'))
+
+      displayFolder
         .add(this.sceneState, 'wireframe')
         .onChange(() => this.$store.commit('updateDisplay'))
 

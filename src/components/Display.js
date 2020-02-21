@@ -1,9 +1,12 @@
 import { traverseMaterials } from '../utils/utils'
-import { SkeletonHelper, GridHelper, AxesHelper } from 'three'
-
-const removeSkeletonHelpers = (skeletonHelpers, scene) => {
-  skeletonHelpers.forEach(helper => scene.remove(helper))
-}
+import {
+  SkeletonHelper,
+  GridHelper,
+  AxesHelper,
+  Scene,
+  PerspectiveCamera,
+  WebGLRenderer
+} from 'three'
 
 // material: MeshStandardMaterial (has opacity, color, etc)
 // TODO: think of ways of controlling wireframes from GUI (e.g. Sketchfab)
@@ -32,15 +35,12 @@ const addSkeleton = (content, scene, skeletonHelpers, sceneState) => {
 /**
  * Updates display-related data, is called in Scene when notified by GUI
  * @param {Object} data object passed from Scene
- * @param {*} sceneState global state managed by VueX
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const updateDisplay = (data, sceneState) => {
-  // TODO: method needs 'this' context to operate
-  // OR: use ...data to get all data components
-
   // Remove skeleton geometry if present
   if (data.skeletonHelpers.length) {
-    removeSkeletonHelpers(data.skeletonHelpers, data.scene)
+    data.skeletonHelpers.forEach(helper => data.scene.remove(helper))
   }
 
   // Add all wireframe data to the viewer content
@@ -49,7 +49,23 @@ const updateDisplay = (data, sceneState) => {
   // Form the skeleton base and add it to the scene
   addSkeleton(data.content, data.scene, data.skeletonHelpers, sceneState)
 
-  // TODO: separate axesScene/Helper and gridHelper
+  // IMPORTANT!!!
+  // Boolean type coercian affects they way Axes Scene appears in the canvas initially
+  // (if comparing directly with 'data.axesHelper', we get a black canvas at start)
+  if (sceneState.axes !== Boolean(data.axesHelper)) {
+    if (sceneState.axes) {
+      // addAxesHelper()
+      data.axesHelper = new AxesHelper()
+      data.axesHelper.renderOrder = 999
+      data.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
+      data.scene.add(data.axesHelper)
+    } else {
+      // removeAxesHelper()
+      data.scene.remove(data.axesHelper)
+      data.axesHelper = null
+      data.axesRenderer.clear()
+    }
+  }
 
   if (sceneState.grid !== Boolean(data.gridHelper)) {
     if (sceneState.grid) {
@@ -57,26 +73,45 @@ const updateDisplay = (data, sceneState) => {
       data.gridHelper = new GridHelper()
       data.scene.add(data.gridHelper)
 
-      // TODO: add following as an option to GUI
+      // TODO: (?) add following as an option to GUI
       // data.gridHelper.material.transparent = true
-
-      // addAxesHelper()
-      data.axesHelper = new AxesHelper()
-      data.axesHelper.renderOrder = 999
-      data.axesHelper.onBeforeRender = renderer => renderer.clearDepth()
-      data.scene.add(data.axesHelper)
     } else {
       // removeGridHelper()
       data.scene.remove(data.gridHelper)
       data.gridHelper = null
-
-      // removeAxesHelper()
-      data.scene.remove(data.axesHelper)
-      data.axesHelper = null
-      data.axesRenderer.clear()
     }
   }
 }
 
+/**
+ * Adds helper axes as a separate mini-scene
+ * @param {Object} data object passed from Scene
+ * @param {HTMLElement} axesElement DOM parent element of axes canvas
+ */
+const addAxesScene = (data, axesElement) => {
+  const { clientWidth, clientHeight } = axesElement
+
+  data.axesScene = new Scene()
+  data.axesCamera = new PerspectiveCamera(
+    50,
+    clientWidth / clientHeight,
+    0.1,
+    10
+  )
+  data.axesScene.add(data.axesCamera)
+
+  data.axesRenderer = new WebGLRenderer({ alpha: true })
+  data.axesRenderer.setPixelRatio(window.devicePixelRatio)
+  data.axesRenderer.setSize(clientWidth, clientHeight)
+
+  data.axesCamera.up = data.defaultCamera.up
+
+  data.axesCorner = new AxesHelper(5)
+  data.axesScene.add(data.axesCorner)
+
+  axesElement.appendChild(data.axesRenderer.domElement)
+}
+
 export default updateDisplay
-// export { ... }
+
+export { addAxesScene }
