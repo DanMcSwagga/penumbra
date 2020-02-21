@@ -3,7 +3,7 @@ import { AnimationMixer } from 'three'
 /**
  * Updates animation-related data, is called in Scene when notified by GUI
  * @param {Object} data object passed from Scene
- * @param {*} sceneState global state managed by VueX
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const updateAnimation = (data, sceneState) => {
   if (data.mixer) data.mixer.timeScale = sceneState.playbackSpeed

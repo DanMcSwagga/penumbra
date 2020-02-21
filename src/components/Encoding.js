@@ -6,7 +6,7 @@ import { traverseMaterials } from '../utils/utils'
 /**
  * Updates encoding-related data, is called in Scene when notified by GUI
  * @param {Object} data object passed from Scene
- * @param {*} sceneState global state managed by VueX
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const updateEnconding = (data, sceneState) => {
   const outEncEnum = Number(sceneState.outputEncoding)

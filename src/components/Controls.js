@@ -5,7 +5,7 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 /**
  * Updates controls-related data, is called in Scene when notified by GUI
  * @param {Object} data object passed from Scene
- * @param {*} sceneState global state managed by VueX
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const updateControls = (data, sceneState) => {
   if (data.controls) data.controls.dispose()

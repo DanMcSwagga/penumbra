@@ -4,7 +4,7 @@ import { AmbientLight, DirectionalLight } from 'three'
  * Creates lighting to then add to the Scene (default: Ambient and Directional)
  * with values taken from sceneState
  * @param {Array<THREE.Light>} lights Scene's lights
- * @param {Object} sceneState globally stored sceneState
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const createLighting = (lights, sceneState) => {
   // const lightHemi = new THREE.HemisphereLight();
@@ -28,7 +28,7 @@ const createLighting = (lights, sceneState) => {
 /**
  * Applies sceneState's lighting values to ambient and directonal lights
  * @param {Array<THREE.Light>} lights Scene's lights
- * @param {Object} sceneState globally stored sceneState
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const applyLighting = (lights, sceneState) => {
   lights[0].color.setHex(sceneState.ambientColor) // ambient
@@ -49,7 +49,7 @@ const removeLighting = lights => {
 /**
  * Updates animation-related data, is called in Scene when notified by GUI
  * @param {Object} data object passed from Scene
- * @param {*} sceneState global state managed by VueX
+ * @param {Object} sceneState global scene state managed by VueX
  */
 const updateLighting = (data, sceneState) => {
   const lights = data.lights
