@@ -16,8 +16,9 @@ export default new Vuex.Store({
     fileMap: {},
 
     // Visibility control for specific GUI folders
-    visibleFolders: {
-      animations: ''
+    foldersGUI: {
+      // anim: 'no-display'
+      anim: null
     },
 
     // GUI variables
@@ -34,6 +35,7 @@ export default new Vuex.Store({
 
       // Animation
       playbackSpeed: 1.0,
+      // actionStates: {},
 
       // Lighting
       ambientColor: 0xffffff,
