@@ -12,6 +12,7 @@ import { traversePrint, traverseMaterials } from '@/utils/utils'
 
 import updateDisplay, { addAxesScene } from './Display'
 import updateControls from './Controls'
+import updateEnvironment from './Environment/Environment'
 import updateEncoding from './Encoding'
 import updateLighting from './Lighting'
 import updateAnimation, {
@@ -46,8 +47,8 @@ export default {
 
       content: null,
 
-      clock: null,
-      // pmremGenerator: null // texture roughness values
+      // Texture roughness values
+      pmremGenerator: null,
 
       // Lighting
       lights: [],
@@ -56,6 +57,7 @@ export default {
       clips: null,
       mixer: null,
       animControls: [],
+      clock: null,
 
       // Skeleton
       skeletonHelpers: [],
@@ -112,8 +114,8 @@ export default {
       this.renderer.setSize(el.clientWidth, el.clientHeight)
       // this.renderer.shadowMap.enabled = true //
 
-      // this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
-      // this.pmremGenerator.compileEquirectangularShader()
+      this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
+      this.pmremGenerator.compileEquirectangularShader()
 
       // Controls
       this.updateControls()
@@ -240,6 +242,7 @@ export default {
       this.updateEncoding()
       this.updateDisplay()
       this.updateAnimation()
+      this.updateEnvironment()
 
       this.setClips(clips)
       this.resetGUI()
@@ -282,6 +285,10 @@ export default {
         // playOtherClips()
         // (Also, dont forget to add animCtrls to this.$data)
       }
+    },
+
+    updateEnvironment() {
+      updateEnvironment(this.$data, this.sceneState, this.$store)
     },
 
     updateAnimation() {
@@ -473,6 +480,7 @@ export default {
       // Assign only certain types of mutations, allowing pitfall
       switch (mutation.type) {
         case 'updateDisplay':
+        case 'updateEnvironment':
         case 'updateCamera':
         case 'updateControls':
         case 'updateLighting':

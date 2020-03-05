@@ -33,6 +33,11 @@ export default new Vuex.Store({
       wireframe: false,
       skeleton: false,
 
+      // Environment
+      background: false,
+      environment: 'None',
+      environments: [], // ?
+
       // Animation
       playbackSpeed: 1.0,
       // actionStates: {},
@@ -53,6 +58,8 @@ export default new Vuex.Store({
 
   mutations: {
     set: (state, { key, value }) => (state[key] = value),
+
+    setSceneProp: (state, { key, value }) => (state.sceneState[key] = value),
 
     activateSpinner: state => {
       state.showSpinner = true
@@ -84,6 +91,7 @@ export default new Vuex.Store({
     updateCamera: () => console.log('~~ updateCamera notifier'),
     updateControls: () => console.log('~~ updateControls notifier'),
     updateDisplay: () => console.log('~~ updateDisplay notifier'),
+    updateEnvironment: () => console.log('~~ updateEnvironment notifier'),
     playClips: () => console.log('~~ playClips notifier'),
     updateAnimation: (state, speed) => (state.playbackSpeed = speed),
     updateLighting: () => /* console.log('~~ updateLighting notifier') */ {},

@@ -4,10 +4,9 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
-
 import { sRGBEncoding as sRGB, LinearEncoding as Linear } from 'three'
-
 import { GUI } from 'dat.gui'
+import { environments } from './Environment/environments'
 
 export default {
   name: 'gui',
@@ -32,6 +31,7 @@ export default {
 
       this.formInteractionControls()
       this.formDisplayControls()
+      this.formEnvironmentControls()
       this.formAnimationControls()
       this.formLightingControls()
       this.formEncodingControls()
@@ -72,6 +72,17 @@ export default {
       displayFolder
         .add(this.sceneState, 'skeleton')
         .onChange(() => this.$store.commit('updateDisplay'))
+    },
+
+    formEnvironmentControls() {
+      const envFolder = this.gui.addFolder('Environment')
+
+      envFolder
+        .add(this.sceneState, 'background')
+        .onChange(() => this.$store.commit('updateEnvironment'))
+      envFolder
+        .add(this.sceneState, 'environment', environments.map(env => env.name))
+        .onChange(() => this.$store.commit('updateEnvironment'))
     },
 
     formAnimationControls() {
