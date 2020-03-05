@@ -13,7 +13,7 @@ export default {
   name: 'gui',
 
   computed: {
-    ...mapState(['sceneState'])
+    ...mapState(['foldersGUI', 'sceneState'])
   },
 
   data() {
@@ -76,8 +76,6 @@ export default {
 
     formAnimationControls() {
       const animFolder = this.gui.addFolder('Animation')
-      // Hide folder unless there are animations present
-      // animFolder.domElement.style.display = 'none'
 
       animFolder.add({ play: () => this.$store.commit('playClips') }, 'play')
 

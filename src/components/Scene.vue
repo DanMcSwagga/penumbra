@@ -32,13 +32,7 @@ export default {
   name: 'scene',
 
   computed: {
-    ...mapState([
-      'fileURL',
-      'rootPath',
-      'fileMap',
-      'visibleFolders',
-      'sceneState'
-    ])
+    ...mapState(['fileURL', 'rootPath', 'fileMap', 'foldersGUI', 'sceneState'])
   },
 
   // TODO: !!!IMPORTANT!!! Refactor everything regarding viewer
@@ -270,15 +264,33 @@ export default {
       this.animControls.forEach(ctrl => ctrl.remove())
       this.animControls.length = 0
 
-      // TODO: create a global store's attribute whether to display animFolder
-      // this.animFolder.domElement.style.display = 'none'
+      // -- Don't display the animation folder
+      // ...
 
       // Animations playout
-      playAnimations(this.$data)
+      if (this.clips.length) {
+        // -- Display the animation folder
+        // Get the folder classlist
+        // Remove no-display from it
+        // Commit changes to store
+        // ...
+
+        // Play the animations
+        playAnimations(this.$data)
+
+        // Use animation folder to play other clips when enabled
+        // playOtherClips()
+        // (Also, dont forget to add animCtrls to this.$data)
+      }
     },
 
     updateAnimation() {
       updateAnimation(this.$data, this.sceneState)
+    },
+
+    resetGUIFolders() {
+      // TODO: create a global store's attribute whether to display animFolder
+      this.$store.commit('setFolderGUIDisplay', { anim: 'none' })
     },
 
     // TODO: deep-learn about loaders, managers, draco etc,

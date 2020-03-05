@@ -9,6 +9,11 @@ const updateAnimation = (data, sceneState) => {
   if (data.mixer) data.mixer.timeScale = sceneState.playbackSpeed
 }
 
+/**
+ * Set Scene's clips, if there are any clips - creates an animation mixer
+ * @param {Object} data object passed from Scene
+ * @param {Array<THREE.AnimationClip>} clips containing animations
+ */
 const setClips = (data, clips) => {
   if (data.mixer) {
     data.mixer.stopAllAction()
@@ -22,6 +27,10 @@ const setClips = (data, clips) => {
   data.mixer = new AnimationMixer(data.content)
 }
 
+/**
+ * Resets and plays all of Scene's current clips
+ * @param {Object} data object passed from Scene
+ */
 const playClips = data => {
   data.clips.forEach(clip => {
     data.mixer
@@ -32,34 +41,47 @@ const playClips = data => {
   })
 }
 
+/**
+ * Displays all animations, decides whether to show animation folder
+ * @param {Object} data object passed from Scene
+ */
 const playAnimations = data => {
-  if (data.clips.length) {
-    // add '' to global store for manipulation
-    // data.animFolder.domElement.style.display = ''
+  // const actionStates = (data.state.actionStates = {})
 
-    // const actionStates = (data.state.actionStates = {})
-    data.clips.forEach((clip, clipIndex) => {
-      // Autoplay the first clip.
-      let action
-      // if (clipIndex === 0) {
+  data.clips.forEach((clip, clipIndex) => {
+    // Autoplay the first clip.
+    let action
+    if (clipIndex === 0) {
       // actionStates[clip.name] = true
       action = data.mixer.clipAction(clip)
       action.play()
-      // } else {
+    } else {
       // actionStates[clip.name] = false
-      // }
+    }
 
-      // // Play other clips when enabled.
-      // const ctrl = data.animFolder.add(actionStates, clip.name).listen()
-      // ctrl.onChange(playAnimation => {
-      //   action = action || data.mixer.clipAction(clip)
-      //   action.setEffectiveTimeScale(1)
-      //   playAnimation ? action.play() : action.stop()
-      // })
-      // data.animCtrls.push(ctrl)
-    })
-  }
+    // Play other clips when enabled
+    const playOtherClips = playAnimation => {
+      action = action || data.mixer.clipAction(clip)
+      action.setEffectiveTimeScale(1)
+      playAnimation ? action.play() : action.stop()
+    }
+
+    // const ctrl = data.animFolder.add(actionStates, clip.name).listen()
+    // ctrl.onChange(playOtherClips)
+    // data.animCtrls.push(ctrl)
+  })
 }
+
+// // Play other clips when enabled
+// const playOtherClips = playAnimation => {
+//   action = action || data.mixer.clipAction(clip)
+//   action.setEffectiveTimeScale(1)
+//   playAnimation ? action.play() : action.stop()
+
+//   // const ctrl = data.animFolder.add(actionStates, clip.name).listen()
+//   // ctrl.onChange(playOtherClips)
+//   // data.animCtrls.push(ctrl)
+// }
 
 export default updateAnimation
 
