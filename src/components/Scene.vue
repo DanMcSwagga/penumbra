@@ -88,12 +88,10 @@ export default {
     },
 
     init() {
-      // const el = document.getElementById('scene')
       const el = this.$refs['scene']
 
       // Scene
       this.scene = new THREE.Scene()
-      this.scene.background = new THREE.Color(0xa0a0a0)
 
       // Camera
       // const fov = options.preset === Preset.ASSET_GENERATOR ? (0.8 * 180) / Math.PI : 60
@@ -127,8 +125,6 @@ export default {
 
       // TODO: create a separate component for the axisScene
       this.addAxesScene()
-
-      requestAnimationFrame(this.animate) // TODO: needed ?
 
       // Resize resolution workaround
       // this.onWindowResize.bind(null, el),

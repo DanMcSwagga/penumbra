@@ -1,13 +1,10 @@
-import { UnsignedByteType } from 'three'
+import { UnsignedByteType, Color } from 'three'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
 import { environments } from './environments'
 
 const getCubeMapTexture = (environment, pmremGenerator) => {
   const { path } = environment
-
-  console.log('PATH!!')
-  console.dir(path)
 
   // no envmap
   if (!path) return Promise.resolve({ envMap: null })
@@ -33,26 +30,25 @@ const getCubeMapTexture = (environment, pmremGenerator) => {
  * @param {Object} sceneState global scene state managed by VueX
  * @param {Object} store global VueX store
  */
-const updateEnvironment = (data, sceneState, store) => {
+const updateEnvironment = (data, sceneState) => {
   const environment = environments.filter(
     entry => entry.name === sceneState.environment
   )[0]
 
   getCubeMapTexture(environment, data.pmremGenerator)
     .then(({ envMap }) => {
+      // TODO: Needed if we want custom colored background
       // if (
       // (!envMap || !sceneState.background) &&
-      // this.activeCamera === this.defaultCamera
+      // data.activeCamera === data.defaultCamera
       // ) {
-      // this.scene.add(this.vignette)
+      // data.scene.background = new Color(0xa0a0a0)
       // } else {
-      // this.scene.remove(this.vignette)
+      // data.scene.remove(data.vignette)
       // }
 
-      store.commit('setSceneProp', { environment: envMap })
-      store.commit('setSceneProp', {
-        background: sceneState.background ? envMap : null
-      })
+      data.scene.environment = envMap
+      data.scene.background = sceneState.background ? envMap : null
     })
     .catch(error => console.log(error))
 }

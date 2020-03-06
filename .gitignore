@@ -23,5 +23,5 @@ yarn-error.log*
 # file copies (intended for development purposes)
 *copy*.vue
 
-#public static objects (early development circles)
-public/static
+# static objects (early development circles)
+# public/static

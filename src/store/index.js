@@ -36,7 +36,6 @@ export default new Vuex.Store({
       // Environment
       background: false,
       environment: 'None',
-      environments: [], // ?
 
       // Animation
       playbackSpeed: 1.0,
