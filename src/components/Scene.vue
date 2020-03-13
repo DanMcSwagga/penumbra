@@ -187,6 +187,11 @@ export default {
       // TODO: Determine if needed
       // this.reset()
 
+      // // Special check for STL objects
+      // const box =
+      //   this.fileType === 'stl'
+      //     ? new THREE.Box3()
+      //     : new THREE.Box3().setFromObject(object)
       const box = new THREE.Box3().setFromObject(object)
       const size = box.getSize(new THREE.Vector3()).length()
       const center = box.getCenter(new THREE.Vector3())
@@ -319,6 +324,12 @@ export default {
           break
         case 'obj':
           loaderPromise = loaders.loadOBJ(this)
+          break
+        case 'dae':
+          loaderPromise = loaders.loadDAE(this)
+          break
+        case 'stl':
+          loaderPromise = loaders.loadSTL(this)
           break
 
         default:

@@ -1,9 +1,9 @@
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
 import { onProgress } from '@/utils/onProgress.js'
 
 export default function loadOBJ(context) {
   return new Promise((resolve, reject) => {
-    const loader = new OBJLoader()
+    const loader = new STLLoader()
     loader.setCrossOrigin('anonymous')
 
     const blobURLs = []
@@ -12,7 +12,7 @@ export default function loadOBJ(context) {
       context.fileURL,
       // called when the resource is loaded
       object => {
-        context.setContent(object, [])
+        // context.setContent(object, [])
 
         blobURLs.forEach(URL.revokeObjectURL)
 
