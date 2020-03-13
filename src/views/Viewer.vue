@@ -19,9 +19,7 @@ import Scene from '@/components/Scene.vue'
 import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
 
-// TODO: import as separate regex
-// Currently supports fbx and gltf (glb)
-const ALLOW_FILE_TYPE = /\.(fbx|gltf|glb)$/
+import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
 export default {
   name: 'viewer',
@@ -61,6 +59,7 @@ export default {
     load(fileMap) {
       let rootFile
       let rootPath
+      let fileType
 
       console.log('Map of file(s)...')
       console.dir(fileMap)
@@ -71,7 +70,17 @@ export default {
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
         if (file.name.match(ALLOW_FILE_TYPE)) {
+          // check if there has already been an allowed type file, e.g.
+          // if (!rootFile) ...
+          // else display error
           rootFile = file
+
+          // Get file type to determine model loader type later
+          fileType = file.name
+            .split('.')
+            .pop()
+            .toLowerCase()
+
           rootPath = path.replace(file.name, '')
         }
       })
@@ -81,15 +90,15 @@ export default {
         this.onError(`No ${ALLOW_FILE_TYPE} asset found.`)
       }
 
-      this.view(rootFile, rootPath, fileMap)
+      this.view(rootFile, rootPath, fileMap, fileType)
     },
 
-    view(rootFile, rootPath, fileMap) {
+    view(rootFile, rootPath, fileMap, fileType) {
       const fileURL =
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
-      // Save fileUrl, rootPath and fileMap to global $store state
-      this.$store.dispatch('saveFile', { fileURL, rootPath, fileMap })
+      // Save fileData to global $store state
+      this.$store.dispatch('saveFile', { fileURL, rootPath, fileMap, fileType })
 
       this.isLoaded = true
     },

@@ -14,6 +14,7 @@ export default new Vuex.Store({
     fileURL: '',
     rootPath: '',
     fileMap: {},
+    fileType: '',
 
     // Visibility control for specific GUI folders
     foldersGUI: {
@@ -67,16 +68,18 @@ export default new Vuex.Store({
       state.showSpinner = false
     },
 
-    setFileData: (state, { fileURL, rootPath, fileMap }) => {
+    setFileData: (state, { fileURL, rootPath, fileMap, fileType }) => {
       // TODO: create more elegant way of assigning these values
       state.fileURL = fileURL
       state.rootPath = rootPath
       state.fileMap = fileMap
+      state.fileType = fileType
     },
     resetFileData: state => {
       state.fileURL = ''
       state.rootPath = ''
       state.fileMap = null
+      state.fileType = ''
     },
 
     setDefaultLighting: state => {

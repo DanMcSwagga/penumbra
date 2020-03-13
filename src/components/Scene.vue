@@ -33,7 +33,14 @@ export default {
   name: 'scene',
 
   computed: {
-    ...mapState(['fileURL', 'rootPath', 'fileMap', 'foldersGUI', 'sceneState'])
+    ...mapState([
+      'fileURL',
+      'rootPath',
+      'fileMap',
+      'fileType',
+      'foldersGUI',
+      'sceneState'
+    ])
   },
 
   // TODO: !!!IMPORTANT!!! Refactor everything regarding viewer
@@ -296,51 +303,29 @@ export default {
       this.$store.commit('setFolderGUIDisplay', { anim: 'none' })
     },
 
-    // TODO: deep-learn about loaders, managers, draco etc,
-    // understand what setURLModifier does
-    loadModelFBX() {
-      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
+    loadModel() {
+      let loaderPromise
 
-      // Load
-      return new Promise((resolve, reject) => {
-        const loader = new FBXLoader()
-        loader.setCrossOrigin('anonymous')
+      switch (this.fileType) {
+        case 'gltf':
+          loaderPromise = this.loadModelGLTF()
+          break
+        case 'glb':
+          loaderPromise = this.loadModelGLTF()
+          break
+        case 'fbx':
+          loaderPromise = this.loadModelFBX()
+          break
 
-        const blobURLs = []
+        default:
+          console.error('Unable to load the model')
+          break
+      }
 
-        loader.load(
-          this.fileURL,
-          object => {
-            // const scene = object.scene || object.scenes[0]
-            // const clips = object.animations || []
-
-            // !!! IMPORTANT: special handling for animations in FBX
-            // // Animation
-            // mixer = new THREE.AnimationMixer(object)
-            // let action = mixer.clipAction(object.animations[0])
-            // action.play()
-
-            object.traverse(child => {
-              if (child.isMesh) {
-                child.castShadow = true
-                child.receiveShadow = true
-              }
-            })
-
-            this.setContent(object, [])
-
-            blobURLs.forEach(URL.revokeObjectURL)
-
-            resolve(object)
-          },
-          undefined,
-          reject
-        )
-      })
+      return loaderPromise
     },
 
-    // Loading from file (GLTF)
-    loadModel() {
+    loadModelGLTF() {
       // TODO: Only load needed THREE components manually
 
       // e.g. in dev mode it is always http://localhost:8080/
@@ -410,6 +395,51 @@ export default {
       })
     },
 
+    // TODO: deep-learn about loaders, managers, draco etc,
+    // understand what setURLModifier does
+    loadModelFBX() {
+      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
+
+      // Load
+      return new Promise((resolve, reject) => {
+        const loader = new FBXLoader()
+        loader.setCrossOrigin('anonymous')
+
+        const blobURLs = []
+
+        loader.load(
+          this.fileURL,
+          object => {
+            // const scene = object.scene || object.scenes[0]
+            // const clips = object.animations || []
+
+            // !!! IMPORTANT: special handling for animations in FBX
+            // // Animation
+            // mixer = new THREE.AnimationMixer(object)
+            // let action = mixer.clipAction(object.animations[0])
+            // action.play()
+
+            object.traverse(child => {
+              if (child.isMesh) {
+                child.castShadow = true
+                child.receiveShadow = true
+              }
+            })
+
+            this.setContent(object, [])
+
+            blobURLs.forEach(URL.revokeObjectURL)
+
+            resolve(object)
+          },
+          // onProgress
+          xhr => console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`),
+          // onError
+          reject
+        )
+      })
+    },
+
     addAxesScene() {
       addAxesScene(this.$data, this.$refs['axes'])
     },
@@ -459,7 +489,7 @@ export default {
           console.error(error)
         })
         // Then Handler
-        .then(gltf => {
+        .then(object => {
           console.log('in cleanup')
           // Cleanup
           this.$store.commit('deactivateSpinner')
