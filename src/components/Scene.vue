@@ -9,6 +9,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 import { traversePrint, traverseMaterials } from '@/utils/utils'
+import * as loaders from './Loaders/loaders.js'
 
 import updateDisplay, { addAxesScene } from './Display'
 import updateControls from './Controls'
@@ -308,13 +309,16 @@ export default {
 
       switch (this.fileType) {
         case 'gltf':
-          loaderPromise = this.loadModelGLTF()
+          loaderPromise = loaders.loadGLTF(this)
           break
         case 'glb':
-          loaderPromise = this.loadModelGLTF()
+          loaderPromise = loaders.loadGLTF(this)
           break
         case 'fbx':
-          loaderPromise = this.loadModelFBX()
+          loaderPromise = loaders.loadFBX(this)
+          break
+        case 'obj':
+          loaderPromise = loaders.loadOBJ(this)
           break
 
         default:
@@ -323,121 +327,6 @@ export default {
       }
 
       return loaderPromise
-    },
-
-    loadModelGLTF() {
-      // TODO: Only load needed THREE components manually
-
-      // e.g. in dev mode it is always http://localhost:8080/
-      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
-
-      // Load
-      return new Promise((resolve, reject) => {
-        const manager = new THREE.LoadingManager()
-
-        // Intercept and override relative URLs.
-        manager.setURLModifier((url, path) => {
-          const normalizedURL =
-            this.rootPath + url.replace(baseURL, '').replace(/^(\.?\/)/, '')
-
-          if (this.fileMap.has(normalizedURL)) {
-            const blob = this.fileMap.get(normalizedURL)
-            const blobURL = URL.createObjectURL(blob)
-            blobURLs.push(blobURL)
-            return blobURL
-          }
-
-          // console.log('in scene.load manager URL Modifier, returning:');
-          // console.dir((path || '') + url)
-          return (path || '') + url
-        })
-
-        // TODO: need to determine which constructor to use here
-        // using information caught by Viewer regarding type
-        // e.g., loader = determineLoader(type, manager = default)
-        const loader = new GLTFLoader(manager)
-        loader.setCrossOrigin('anonymous')
-
-        // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-        // const dracoLoader = new DRACOLoader()
-        // dracoLoader.setDecoderPath('assets/draco/') // TODO: change
-        // loader.setDRACOLoader(dracoLoader)
-
-        const blobURLs = []
-
-        loader.load(
-          this.fileURL,
-          // called when the resource is loaded
-          gltf => {
-            const scene = gltf.scene || gltf.scenes[0]
-            const clips = gltf.animations || []
-            // gltf.animations // Array<THREE.AnimationClip>
-            // gltf.scene // THREE.Scene
-            // gltf.scenes // Array<THREE.Scene>
-            // gltf.cameras // Array<THREE.Camera>
-            // gltf.asset // Object
-
-            // TODO: thoroughly check this function
-            this.setContent(scene, clips)
-
-            blobURLs.forEach(URL.revokeObjectURL)
-
-            // See: https://github.com/google/draco/issues/349
-            // DRACOLoader.releaseDecoderModule();
-
-            resolve(gltf)
-          },
-          // onProgress
-          xhr => console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`),
-          // onError
-          reject
-        )
-      })
-    },
-
-    // TODO: deep-learn about loaders, managers, draco etc,
-    // understand what setURLModifier does
-    loadModelFBX() {
-      const baseURL = THREE.LoaderUtils.extractUrlBase(this.fileURL)
-
-      // Load
-      return new Promise((resolve, reject) => {
-        const loader = new FBXLoader()
-        loader.setCrossOrigin('anonymous')
-
-        const blobURLs = []
-
-        loader.load(
-          this.fileURL,
-          object => {
-            // const scene = object.scene || object.scenes[0]
-            // const clips = object.animations || []
-
-            // !!! IMPORTANT: special handling for animations in FBX
-            // // Animation
-            // mixer = new THREE.AnimationMixer(object)
-            // let action = mixer.clipAction(object.animations[0])
-            // action.play()
-
-            object.traverse(child => {
-              if (child.isMesh) {
-                child.castShadow = true
-                child.receiveShadow = true
-              }
-            })
-
-            this.setContent(object, [])
-
-            blobURLs.forEach(URL.revokeObjectURL)
-
-            resolve(object)
-          },
-          // onProgress
-          xhr => console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`),
-          // onError
-          reject
-        )
-      })
     },
 
     addAxesScene() {
