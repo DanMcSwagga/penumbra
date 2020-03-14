@@ -21,10 +21,6 @@ import Spinner from '@/components/Spinner.vue'
 
 import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
-const ls = localStorage.modelHistory
-  ? JSON.parse(localStorage.modelHistory)
-  : []
-
 export default {
   name: 'viewer',
 
@@ -101,21 +97,16 @@ export default {
       const fileURL =
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
-      // Save fileData to global $store state
-      this.$store.dispatch('saveFileData', {
-        fileURL,
-        rootPath,
-        fileMap,
-        fileType
-      })
-      this.$store.dispatch('addModelToHistory', {
-        fileURL,
-        rootPath,
-        fileMap,
-        fileType
-      })
+      // Save fileData to global VueX storage
+      const fileData = { fileURL, rootPath, fileMap, fileType }
+      this.$store.dispatch('saveFileData', fileData)
+
+      // Save fileData as model to global VueX storage
+      const modelData = { fileName: rootFile.name, fileType }
+      this.$store.dispatch('saveModelToHistory', modelData)
 
       this.isLoaded = true
+      console.dir(JSON.parse(localStorage.modelHistory))
     },
 
     onError(error) {

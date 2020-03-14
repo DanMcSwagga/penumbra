@@ -16,7 +16,10 @@ export default new Vuex.Store({
     fileType: '',
 
     // File history
-    modelHistory: [],
+    // modelHistory: [],
+    modelHistory: localStorage.modelHistory
+      ? JSON.parse(localStorage.modelHistory)
+      : [],
 
     // Visibility control for specific GUI folders
     foldersGUI: {
@@ -83,8 +86,11 @@ export default new Vuex.Store({
       state.fileMap = null
       state.fileType = ''
     },
-    ADD_MODEL_TO_HISTORY: (state, model) => {
+    SAVE_MODEL_TO_HISTORY: (state, model) => {
       state.modelHistory.push(model)
+      // this.notes.push(note)
+      // localStorage.notes = JSON.stringify(notes)
+      localStorage.modelHistory = JSON.stringify(state.modelHistory)
     },
 
     SET_DEFAULT_LIGHTING: state => {
@@ -119,10 +125,10 @@ export default new Vuex.Store({
       console.log('~~~ Resetting file data to prepare for new model...')
       commit('RESET_FILE_DATA')
     },
-    addModelToHistory({ commit }, fileData) {
-      console.log('~~~ Saving file data to global state...')
+    saveModelToHistory({ commit }, fileData) {
+      console.log('~~~ Saving model to global state history...')
       console.dir(fileData)
-      commit('ADD_MODEL_TO_HISTORY', fileData)
+      commit('SAVE_MODEL_TO_HISTORY', fileData)
     }
   },
   modules: {}

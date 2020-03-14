@@ -362,6 +362,7 @@ export default {
     },
 
     resetLighting() {
+      localStorage.clear() // TODO: Temporary, remove later
       this.$store.commit('SET_DEFAULT_LIGHTING')
       this.updateLighting()
     },

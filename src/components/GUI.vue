@@ -124,7 +124,7 @@ export default {
         .onChange(() => this.$store.commit('UPDATE_LIGHTING'))
 
       lightFolder.add(
-        { reset: () => this.$store.commit('RSESET_LIGHTING') },
+        { reset: () => this.$store.commit('RESET_LIGHTING') },
         'reset'
       )
 
