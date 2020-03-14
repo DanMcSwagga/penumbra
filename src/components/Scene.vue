@@ -8,7 +8,8 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex'
 
-import { traversePrint, traverseMaterials } from '@/utils/utils'
+import { traversePrint, traverseMaterials } from '@/utils/traverse.js'
+import { snakeCapsToCamel } from '@/utils/snakeCapsToCamel.js'
 import * as loaders from './Loaders/loaders.js'
 
 import updateDisplay, { addAxesScene } from './Display'
@@ -235,13 +236,13 @@ export default {
       this.scene.add(object)
       this.content = object
 
-      this.$store.commit('set', { disableLighting: false })
+      this.$store.commit('SET', { disableLighting: false })
 
       this.content.traverse(node => {
         if (node.isMesh) {
           node.material.depthWrite = !node.material.transparent
         } else if (node.isLight) {
-          this.$store.commit('set', { disableLighting: true })
+          this.$store.commit('SET', { disableLighting: true })
         }
       })
 
@@ -306,7 +307,7 @@ export default {
 
     resetGUIFolders() {
       // TODO: create a global store's attribute whether to display animFolder
-      this.$store.commit('setFolderGUIDisplay', { anim: 'none' })
+      this.$store.commit('SET_FOLDER_GUI_DISPLAY', { anim: 'none' })
     },
 
     loadModel() {
@@ -361,7 +362,7 @@ export default {
     },
 
     resetLighting() {
-      this.$store.commit('setDefaultLighting')
+      this.$store.commit('SET_DEFAULT_LIGHTING')
       this.updateLighting()
     },
 
@@ -392,7 +393,7 @@ export default {
         .then(object => {
           console.log('in cleanup')
           // Cleanup
-          this.$store.commit('deactivateSpinner')
+          this.$store.commit('DEACTIVATE_SPINNER')
           if (typeof this.rootFile === 'object')
             URL.revokeObjectURL(this.fileURL)
         })
@@ -403,19 +404,20 @@ export default {
     this.$store.subscribe((mutation, state) => {
       // console.log(`Reacting to ${mutation.type} mutation`)
 
-      // Assign only certain types of mutations, allowing pitfall
+      // Assign only certain types of mutations, ALLOW pitfall
       switch (mutation.type) {
-        case 'updateDisplay':
-        case 'updateEnvironment':
-        case 'updateCamera':
-        case 'updateControls':
-        case 'updateLighting':
-        case 'updateEncoding':
-        case 'updateAnimation':
-        case 'playClips':
-        case 'resetLighting':
+        case 'UPDATE_DISPLAY':
+        case 'UPDATE_ENVIRONMENT':
+        case 'UPDATE_CAMERA':
+        case 'UPDATE_CONTROLS':
+        case 'UPDATE_LIGHTING':
+        case 'RESET_LIGHTING':
+        case 'UPDATE_ENCODING':
+        case 'UPDATE_ANIMATION':
+        case 'PLAY_CLIPS':
           // console.log(`Reacting to ${mutation.type} mutation`)
-          this[mutation.type]()
+
+          this[snakeCapsToCamel(mutation.type)]()
           break
 
         default:

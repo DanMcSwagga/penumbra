@@ -1,4 +1,4 @@
-import { traverseMaterials } from '../utils/utils'
+import { traverseMaterials } from '../utils/traverse'
 import {
   SkeletonHelper,
   GridHelper,

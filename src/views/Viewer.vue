@@ -21,6 +21,10 @@ import Spinner from '@/components/Spinner.vue'
 
 import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
+const ls = localStorage.modelHistory
+  ? JSON.parse(localStorage.modelHistory)
+  : []
+
 export default {
   name: 'viewer',
 
@@ -51,8 +55,8 @@ export default {
     const self = this
     dropzoneController
       .on('drop', ({ files }) => self.load(files))
-      .on('dropstart', () => self.$store.commit('activateSpinner'))
-      .on('droperror', () => self.$store.commit('deactivateSpinner'))
+      .on('dropstart', () => self.$store.commit('ACTIVATE_SPINNER'))
+      .on('droperror', () => self.$store.commit('DEACTIVATE_SPINNER'))
   },
 
   methods: {
@@ -98,7 +102,18 @@ export default {
         typeof rootFile === 'string' ? rootFile : URL.createObjectURL(rootFile)
 
       // Save fileData to global $store state
-      this.$store.dispatch('saveFile', { fileURL, rootPath, fileMap, fileType })
+      this.$store.dispatch('saveFileData', {
+        fileURL,
+        rootPath,
+        fileMap,
+        fileType
+      })
+      this.$store.dispatch('addModelToHistory', {
+        fileURL,
+        rootPath,
+        fileMap,
+        fileType
+      })
 
       this.isLoaded = true
     },

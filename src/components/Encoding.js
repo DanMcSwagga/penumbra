@@ -1,4 +1,4 @@
-import { traverseMaterials } from '../utils/utils'
+import { traverseMaterials } from '../utils/traverse'
 
 // TODO: Separate output and texture encodings for optimization
 // by detecting change in traverseMaterials for material maps

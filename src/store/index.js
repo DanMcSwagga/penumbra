@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-// import * as THREE from 'three'
 import { sRGBEncoding, LinearEncoding } from 'three'
 
 Vue.use(Vuex)
@@ -15,6 +14,9 @@ export default new Vuex.Store({
     rootPath: '',
     fileMap: {},
     fileType: '',
+
+    // File history
+    modelHistory: [],
 
     // Visibility control for specific GUI folders
     foldersGUI: {
@@ -57,32 +59,36 @@ export default new Vuex.Store({
   },
 
   mutations: {
-    set: (state, { key, value }) => (state[key] = value),
+    SET: (state, { key, value }) => (state[key] = value),
 
-    setSceneProp: (state, { key, value }) => (state.sceneState[key] = value),
+    SET_SCENE_PROP: (state, { key, value }) => (state.sceneState[key] = value),
 
-    activateSpinner: state => {
+    ACTIVATE_SPINNER: state => {
       state.showSpinner = true
     },
-    deactivateSpinner: state => {
+    DEACTIVATE_SPINNER: state => {
       state.showSpinner = false
     },
 
-    setFileData: (state, { fileURL, rootPath, fileMap, fileType }) => {
+    SAVE_FILE_DATA: (state, { fileURL, rootPath, fileMap, fileType }) => {
       // TODO: create more elegant way of assigning these values
       state.fileURL = fileURL
       state.rootPath = rootPath
       state.fileMap = fileMap
       state.fileType = fileType
     },
-    resetFileData: state => {
+    RESET_FILE_DATA: state => {
       state.fileURL = ''
       state.rootPath = ''
       state.fileMap = null
       state.fileType = ''
     },
+    ADD_MODEL_TO_HISTORY: (state, model) => {
+      state.modelHistory.push(model)
+    },
 
-    setDefaultLighting: state => {
+    SET_DEFAULT_LIGHTING: state => {
+      // TODO: extract to separate default constant
       state.sceneState.ambientColor = 0xffffff
       state.sceneState.directColor = 0xffffff
       state.sceneState.ambientIntensity = 0.4
@@ -90,26 +96,33 @@ export default new Vuex.Store({
       state.sceneState.exposure = 1.0
     },
 
-    updateCamera: () => console.log('~~ updateCamera notifier'),
-    updateControls: () => console.log('~~ updateControls notifier'),
-    updateDisplay: () => console.log('~~ updateDisplay notifier'),
-    updateEnvironment: () => console.log('~~ updateEnvironment notifier'),
-    playClips: () => console.log('~~ playClips notifier'),
-    updateAnimation: (state, speed) => (state.playbackSpeed = speed),
-    updateLighting: () => /* console.log('~~ updateLighting notifier') */ {},
-    resetLighting: () => console.log('~~ resetLighting notifier'),
-    updateEncoding: () => console.log('~~ updateEncoding notifier')
+    UPDATE_CAMERA: () => console.log('~~ updateCamera notifier'),
+
+    // UPDATE_CAMERA: () => {},
+    UPDATE_CONTROLS: () => {},
+    UPDATE_DISPLAY: () => {},
+    UPDATE_ENVIRONMENT: () => {},
+    PLAY_CLIPS: () => {},
+    UPDATE_ANIMATION: (state, speed) => (state.playbackSpeed = speed),
+    UPDATE_LIGHTING: () => {},
+    RESET_LIGHTING: () => {},
+    UPDATE_ENCODING: () => {}
   },
 
   actions: {
-    saveFile({ commit }, fileData) {
+    saveFileData({ commit }, fileData) {
       console.log('~~~ Saving file data to global state...')
       // console.dir(fileData)
-      commit('setFileData', fileData)
+      commit('SAVE_FILE_DATA', fileData)
     },
-    resetFile({ commit }) {
+    resetFileData({ commit }) {
       console.log('~~~ Resetting file data to prepare for new model...')
-      commit('resetFileData')
+      commit('RESET_FILE_DATA')
+    },
+    addModelToHistory({ commit }, fileData) {
+      console.log('~~~ Saving file data to global state...')
+      console.dir(fileData)
+      commit('ADD_MODEL_TO_HISTORY', fileData)
     }
   },
   modules: {}
