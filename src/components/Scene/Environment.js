@@ -1,7 +1,7 @@
 import { UnsignedByteType, Color } from 'three'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
-import { environments } from './environments'
+import { environments } from '../../data/environments'
 
 const getCubeMapTexture = (environment, pmremGenerator) => {
   const { path } = environment
