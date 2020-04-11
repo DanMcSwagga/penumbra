@@ -15,7 +15,7 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { SimpleDropzone } from 'simple-dropzone'
 
 import GUI from '@/components/GUI.vue'
-import Scene from '@/components/Scene.vue'
+import Scene from '@/components/Scene/Scene.vue'
 import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
 

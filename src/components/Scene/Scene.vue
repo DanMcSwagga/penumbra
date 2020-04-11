@@ -10,11 +10,11 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 
 import { traversePrint, traverseMaterials } from '@/utils/traverse.js'
 import { snakeCapsToCamel } from '@/utils/snakeCapsToCamel.js'
-import * as loaders from './Loaders/loaders.js'
+import * as loaders from '../Loaders'
 
 import updateDisplay, { addAxesScene } from './Display'
 import updateControls from './Controls'
-import updateEnvironment from './Environment/Environment'
+import updateEnvironment from './Environment'
 import updateEncoding from './Encoding'
 import updateLighting from './Lighting'
 import updateAnimation, {

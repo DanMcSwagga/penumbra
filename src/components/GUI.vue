@@ -6,7 +6,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex'
 import { sRGBEncoding as sRGB, LinearEncoding as Linear } from 'three'
 import { GUI } from 'dat.gui'
-import { environments } from './Environment/environments'
+import { environments } from '../data/environments'
 
 export default {
   name: 'gui',
