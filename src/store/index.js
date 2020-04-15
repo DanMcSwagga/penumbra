@@ -75,6 +75,8 @@ export default new Vuex.Store({
 
     SAVE_FILE_DATA: (state, { fileURL, rootPath, fileMap, fileType }) => {
       // TODO: create more elegant way of assigning these values
+      // perhaps pass payload in arguments and then
+      // Object.assign(state, payload) ?
       state.fileURL = fileURL
       state.rootPath = rootPath
       state.fileMap = fileMap
@@ -87,10 +89,14 @@ export default new Vuex.Store({
       state.fileType = ''
     },
     SAVE_MODEL_TO_HISTORY: (state, model) => {
-      state.modelHistory.push(model)
-      // this.notes.push(note)
-      // localStorage.notes = JSON.stringify(notes)
-      localStorage.modelHistory = JSON.stringify(state.modelHistory)
+      let history = state.modelHistory
+      history.push(model)
+      if (history.length > 20) {
+        // trim localStorage model history up to 20 last
+        history.shift()
+        // history.splice(history.length - 20, 20)
+      }
+      localStorage.modelHistory = JSON.stringify(history)
     },
 
     SET_DEFAULT_LIGHTING: state => {
@@ -131,5 +137,7 @@ export default new Vuex.Store({
       commit('SAVE_MODEL_TO_HISTORY', fileData)
     }
   },
-  modules: {}
+  modules: {
+    // TODO: separate File and GUI modules into separate ones
+  }
 })
