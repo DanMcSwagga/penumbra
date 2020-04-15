@@ -178,7 +178,7 @@ export default {
       // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
 
       // Controls
-      this.controls.handleResize()
+      this.controls.handleResize() // TODO: Check if the name is valid
     },
 
     /**
@@ -362,9 +362,53 @@ export default {
     },
 
     resetLighting() {
-      localStorage.clear() // TODO: Temporary, remove later
+      /*** DEBUG BUTTON :) ***/ // TODO: Temporary, remove later
+      // localStorage.clear()
+
+      // console.log('DEBUGGING 1')
+      // console.log(this.renderer.info.render)
+      console.log('Calculating model info...')
+      this.getModelAttributes(this.scene)
+
       this.$store.commit('SET_DEFAULT_LIGHTING')
       this.updateLighting()
+    },
+
+    getModelAttributes(scene) {
+      const { children } = scene
+
+      let objects = 0
+      let vertices = 0
+      let triangles = 0
+
+      children.forEach(child => {
+        child.traverseVisible(object => {
+          objects++
+
+          if (object.isMesh) {
+            const geometry = object.geometry
+
+            if (geometry.isGeometry) {
+              vertices += geometry.vertices.length
+              triangles += geometry.faces.length
+            } else if (geometry.isBufferGeometry) {
+              vertices += geometry.attributes.position.count
+
+              if (geometry.index !== null) {
+                triangles += geometry.index.count / 3
+              } else {
+                triangles += geometry.attributes.position.count / 3
+              }
+            }
+          }
+        })
+      })
+
+      console.log(
+        `Vertices: ${vertices}
+      Triangles: ${triangles}
+      Objects: ${objects}`
+      )
     },
 
     updateLighting() {

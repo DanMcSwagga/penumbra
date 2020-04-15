@@ -43,12 +43,13 @@ export default {
 
   mounted() {
     const dropzoneController = new SimpleDropzone(
+      // TODO: Change to refs:
       // this.$refs['dropzone'],
       // this.$refs['file-input'] // now is in a child component
       document.getElementById('dropzone'),
       document.getElementById('file-input')
     )
-    const self = this
+    const self = this // TODO: not needed ?
     dropzoneController
       .on('drop', ({ files }) => self.load(files))
       .on('dropstart', () => self.$store.commit('ACTIVATE_SPINNER'))
