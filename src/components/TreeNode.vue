@@ -1,14 +1,21 @@
 <template>
   <li class="tree-node">
-    <div :class="{ isFolder }" @click="toggle">
-      {{ info.name }}
-      <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
+    <div
+      class="tree-node__key"
+      :class="{ 'tree-node__key--folder': isFolder }"
+      @click="toggle"
+    >
+      {{ info.key }}
+      <template>
+        <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
+        <span v-else>: {{ info.value }}</span>
+      </template>
     </div>
     <ul class="tree-node__branch" v-show="isOpen" v-if="isFolder">
       <tree-node
-        v-for="(child, index) in info.children"
+        v-for="(node, index) in info.value"
         :key="index"
-        :info="child"
+        :info="node"
       ></tree-node>
     </ul>
   </li>
@@ -30,7 +37,7 @@ export default {
 
   computed: {
     isFolder() {
-      return this.info.children && this.info.children.length
+      return Array.isArray(this.info.value)
     }
   },
 
@@ -51,10 +58,12 @@ export default {
     line-height: 1.5em;
     list-style-type: disc;
   }
-}
 
-.isFolder {
-  font-weight: bold;
-  cursor: pointer;
+  &__key {
+    &--folder {
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
 }
 </style>

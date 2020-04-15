@@ -12,7 +12,7 @@ export default new Vuex.Store({
     // File loading
     fileURL: '',
     rootPath: '',
-    fileMap: {},
+    fileMap: null,
     fileType: '',
 
     // File history
@@ -20,6 +20,9 @@ export default new Vuex.Store({
     modelHistory: localStorage.modelHistory
       ? JSON.parse(localStorage.modelHistory)
       : [],
+
+    // Loaded model information
+    modelInfo: {},
 
     // Visibility control for specific GUI folders
     foldersGUI: {
@@ -99,6 +102,11 @@ export default new Vuex.Store({
       localStorage.modelHistory = JSON.stringify(history)
     },
 
+    SAVE_MODEL_INFO: (state, modelInfo) => {
+      state.modelInfo = modelInfo
+    },
+
+    // GUI manipulations
     SET_DEFAULT_LIGHTING: state => {
       // TODO: extract to separate default constant
       state.sceneState.ambientColor = 0xffffff
@@ -124,7 +132,6 @@ export default new Vuex.Store({
   actions: {
     saveFileData({ commit }, fileData) {
       console.log('~~~ Saving file data to global state...')
-      // console.dir(fileData)
       commit('SAVE_FILE_DATA', fileData)
     },
     resetFileData({ commit }) {
@@ -135,6 +142,10 @@ export default new Vuex.Store({
       console.log('~~~ Saving model to global state history...')
       console.dir(fileData)
       commit('SAVE_MODEL_TO_HISTORY', fileData)
+    },
+    saveModelInfo({ commit }, modelInfo) {
+      console.log('~~~ Saving model info to global state...')
+      commit('SAVE_MODEL_INFO', modelInfo)
     }
   },
   modules: {

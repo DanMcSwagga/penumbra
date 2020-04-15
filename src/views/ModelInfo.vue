@@ -1,10 +1,7 @@
 <template>
   <div class="model-info">
-    <!-- TODO: Store model info in VueX and then use here -->
-
-    <!-- Mocked model info for now -->
     <ul class="model-info__tree tree">
-      <TreeNode :info="mockTreeData" />
+      <TreeNode class="tree__node" :info="modelInfo" />
     </ul>
   </div>
 </template>
@@ -21,39 +18,16 @@ export default {
   },
 
   computed: {
-    // ...mapState(['modelInfo']),
+    ...mapState(['modelInfo']),
 
     isFolder() {
-      return this.mockTreeData.children && this.mockTreeData.children.length
+      return Array.isArray(this.modelInfo.value)
     }
   },
 
   data() {
     return {
-      isOpen: false,
-
-      mockTreeData: {
-        name: 'My Tree',
-        children: [
-          { name: 'hello' },
-          { name: 'wat' },
-          {
-            name: 'child folder',
-            children: [
-              {
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }]
-              },
-              { name: 'hello' },
-              { name: 'wat' },
-              {
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }]
-              }
-            ]
-          }
-        ]
-      }
+      isOpen: false
     }
   }
 }

@@ -368,13 +368,13 @@ export default {
       // console.log('DEBUGGING 1')
       // console.log(this.renderer.info.render)
       console.log('Calculating model info...')
-      this.getModelAttributes(this.scene)
+      this.getModelInfo(this.scene)
 
       this.$store.commit('SET_DEFAULT_LIGHTING')
       this.updateLighting()
     },
 
-    getModelAttributes(scene) {
+    getModelInfo(scene) {
       const { children } = scene
 
       let objects = 0
@@ -404,11 +404,17 @@ export default {
         })
       })
 
-      console.log(
-        `Vertices: ${vertices}
-      Triangles: ${triangles}
-      Objects: ${objects}`
-      )
+      const modelInfo = {
+        key: 'Model Info',
+        value: [
+          { key: 'vertices', value: vertices },
+          { key: 'triangles', value: triangles },
+          { key: 'objects', value: objects }
+        ]
+      }
+
+      // TODO: use mapActions for stuff like this
+      this.$store.dispatch('saveModelInfo', modelInfo)
     },
 
     updateLighting() {
@@ -436,8 +442,10 @@ export default {
         })
         // Then Handler
         .then(object => {
-          console.log('in cleanup')
+          this.getModelInfo(this.scene)
+
           // Cleanup
+          console.log('in cleanup')
           this.$store.commit('DEACTIVATE_SPINNER')
           if (typeof this.rootFile === 'object')
             URL.revokeObjectURL(this.fileURL)

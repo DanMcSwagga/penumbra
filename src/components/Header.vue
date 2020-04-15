@@ -4,10 +4,13 @@
     <span class="header__item">
       <router-link to="/">Viewer</router-link>
     </span>
-    <span class="header__separator">|</span>
-    <span class="header__item">
-      <router-link to="/info">Model Info</router-link>
-    </span>
+
+    <template v-if="isModelLoaded">
+      <span class="header__separator">|</span>
+      <span class="header__item">
+        <router-link to="/info">Model Info</router-link>
+      </span>
+    </template>
   </header>
 
   <!-- TODO: IMPORTANT!!! improve structure using BEM -->
@@ -25,17 +28,25 @@
           <span class="header__item">Currently supports GLTF/GLB files</span>
         </li>
       </ul>
-    </nav>
-  </header>-->
+  </nav>-->
 </template>
 
 <script>
 import logo from '../assets/logo_clean_dark.png'
+import { mapState } from 'vuex'
 
 export default {
   name: 'viewer-header',
 
-  data: () => ({ logo })
+  data: () => ({ logo }),
+
+  computed: {
+    ...mapState(['fileMap']),
+
+    isModelLoaded() {
+      return this.fileMap
+    }
+  }
 }
 </script>
 
