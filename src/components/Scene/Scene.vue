@@ -178,7 +178,7 @@ export default {
       // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
 
       // Controls
-      this.controls.handleResize()
+      this.controls.handleResize() // TODO: Check if the name is valid
     },
 
     /**
@@ -362,9 +362,59 @@ export default {
     },
 
     resetLighting() {
-      localStorage.clear() // TODO: Temporary, remove later
+      /*** DEBUG BUTTON :) ***/ // TODO: Temporary, remove later
+      // localStorage.clear()
+
+      // console.log('DEBUGGING 1')
+      // console.log(this.renderer.info.render)
+      console.log('Calculating model info...')
+      this.getModelInfo(this.scene)
+
       this.$store.commit('SET_DEFAULT_LIGHTING')
       this.updateLighting()
+    },
+
+    getModelInfo(scene) {
+      const { children } = scene
+
+      let objects = 0
+      let vertices = 0
+      let triangles = 0
+
+      children.forEach(child => {
+        child.traverseVisible(object => {
+          objects++
+
+          if (object.isMesh) {
+            const geometry = object.geometry
+
+            if (geometry.isGeometry) {
+              vertices += geometry.vertices.length
+              triangles += geometry.faces.length
+            } else if (geometry.isBufferGeometry) {
+              vertices += geometry.attributes.position.count
+
+              if (geometry.index !== null) {
+                triangles += geometry.index.count / 3
+              } else {
+                triangles += geometry.attributes.position.count / 3
+              }
+            }
+          }
+        })
+      })
+
+      const modelInfo = {
+        key: 'Model Info',
+        value: [
+          { key: 'vertices', value: vertices },
+          { key: 'triangles', value: triangles },
+          { key: 'objects', value: objects }
+        ]
+      }
+
+      // TODO: use mapActions for stuff like this
+      this.$store.dispatch('saveModelInfo', modelInfo)
     },
 
     updateLighting() {
@@ -392,8 +442,10 @@ export default {
         })
         // Then Handler
         .then(object => {
-          console.log('in cleanup')
+          this.getModelInfo(this.scene)
+
           // Cleanup
+          console.log('in cleanup')
           this.$store.commit('DEACTIVATE_SPINNER')
           if (typeof this.rootFile === 'object')
             URL.revokeObjectURL(this.fileURL)
