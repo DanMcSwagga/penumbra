@@ -8,8 +8,13 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'scene',
+    name: 'viewer',
     component: Viewer
+  },
+  {
+    path: '/info',
+    name: 'model-info',
+    component: () => import('../views/ModelInfo.vue')
   }
 ]
 

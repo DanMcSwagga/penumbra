@@ -1,5 +1,7 @@
 <template>
-  <div class="gui-wrapper" :ref="'gui-wrapper'"></div>
+  <div class="gui-wrapper" :ref="'gui-wrapper'">
+    <!-- Dat GUI generates here -->
+  </div>
 </template>
 
 <script>
@@ -27,7 +29,7 @@ export default {
 
   methods: {
     formGUI() {
-      this.gui = new GUI({ autoPlace: false, width: 300, hideable: true })
+      this.gui = new GUI({ autoPlace: false, width: 320, hideable: true })
 
       this.formInteractionControls()
       this.formDisplayControls()
@@ -152,20 +154,82 @@ export default {
 <style lang="scss">
 .gui-wrapper {
   position: absolute;
-  // position: fixed;
   z-index: 2;
   top: 0;
   right: 0;
-  // bottom: 0;
   pointer-events: none;
-  > .main {
+
+  .main {
     pointer-events: all;
     max-height: 100%;
     overflow: auto;
+
+    .close-button {
+      background-color: #2b2b2b;
+      padding: 4px 0;
+      line-height: auto;
+      height: auto;
+      &:hover {
+        background-color: #242424;
+      }
+    }
   }
 }
 
-.dg li.gui-stats:not(.folder) {
-  height: auto;
+.dg {
+  font-family: Consolas;
+  font-weight: 300;
+  font-size: 12px;
+
+  .folder {
+    .dg {
+      li.title {
+        // font-weight: 900;
+        background-color: #363537;
+        &:hover {
+          background-color: #434244;
+        }
+      }
+    }
+  }
+
+  ul {
+    li:not(.folder) {
+      border-left: 4px solid rgba(0, 0, 0, 0);
+      border-bottom: none;
+    }
+    li.cr {
+      padding-left: 10px;
+      margin-left: 10px;
+      border-left-width: 4px !important;
+      background-color: #2b2b2b;
+      &:hover {
+        background-color: #313131 !important;
+      }
+    }
+    li.title {
+      padding-left: 24px;
+      border-bottom-color: rgba(0, 0, 0, 0);
+      background-position: 8px center;
+    }
+  }
+
+  li.gui-stats:not(.folder) {
+    height: auto;
+  }
+
+  .slider {
+    margin-left: 0px;
+  }
+
+  .c {
+    input[type='checkbox'] {
+      margin-left: 0px;
+    }
+  }
+
+  .selector {
+    margin-left: -16px;
+  }
 }
 </style>

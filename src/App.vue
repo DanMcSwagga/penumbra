@@ -1,19 +1,16 @@
 <template>
   <div id="app" class="app">
-    <ViewerHeader />
-    <!-- <div id="nav"> -->
-    <!-- <router-link to="/">Viewer</router-link> -->
-    <!-- </div> -->
+    <Header />
     <router-view />
   </div>
 </template>
 
 <script>
-import ViewerHeader from '@/components/ViewerHeader.vue'
+import Header from '@/components/Header.vue'
 
 export default {
   components: {
-    ViewerHeader
+    Header
   }
 }
 </script>
