@@ -5,6 +5,11 @@
       <router-link to="/">Viewer</router-link>
     </span>
 
+    <span class="header__separator">|</span>
+    <span class="header__item">
+      <router-link to="/models">Models</router-link>
+    </span>
+
     <template v-if="isModelLoaded">
       <span class="header__separator">|</span>
       <span class="header__item">

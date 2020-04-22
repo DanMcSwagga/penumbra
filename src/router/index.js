@@ -12,6 +12,11 @@ const routes = [
     component: Viewer
   },
   {
+    path: '/models',
+    name: 'models',
+    component: () => import('../views/LoggedModels.vue')
+  },
+  {
     path: '/info',
     name: 'model-info',
     component: () => import('../views/ModelInfo.vue')
