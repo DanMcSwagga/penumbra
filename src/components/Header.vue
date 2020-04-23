@@ -1,14 +1,26 @@
 <template>
   <header class="header">
-    <img class="header__logo" :src="logo" alt="Penumbra Logo" />
+    <router-link class="header__logo-link" to="/">
+      <img class="header__logo" :src="logoDark" alt="Penumbra Logo" />
+    </router-link>
+
     <span class="header__item">
-      <router-link to="/">Viewer</router-link>
+      <router-link class="header__nav-link" to="/about">About</router-link>
+    </span>
+
+    <span class="header__separator">|</span>
+
+    <span class="header__item">
+      <!-- Create tutorial page -->
+      <router-link class="header__nav-link" to="/">Tutorial</router-link>
     </span>
 
     <template v-if="isModelLoaded">
       <span class="header__separator">|</span>
       <span class="header__item">
-        <router-link to="/info">Model Info</router-link>
+        <router-link class="header__nav-link" to="/info">
+          Model Info
+        </router-link>
       </span>
     </template>
   </header>
@@ -32,13 +44,14 @@
 </template>
 
 <script>
-import logo from '../assets/logo_clean_dark.png'
 import { mapState } from 'vuex'
+import logoDark from '@/assets/logo_clean_dark.png'
+import logoLight from '@/assets/logo_clean_light.png'
 
 export default {
   name: 'viewer-header',
 
-  data: () => ({ logo }),
+  data: () => ({ logoDark }),
 
   computed: {
     ...mapState(['fileMap']),
@@ -56,7 +69,6 @@ export default {
   position: fixed;
 
   display: flex;
-  // background-color: #353535;
   padding: 0 2em;
   height: 4rem;
   line-height: 4rem;
@@ -66,9 +78,6 @@ export default {
   white-space: nowrap;
   z-index: 1;
 
-  -webkit-app-region: drag;
-
-  h1,
   &__item,
   &__separator {
     color: #1e1e1e;
@@ -78,53 +87,53 @@ export default {
   }
 
   &__logo {
-    height: 32px;
-    width: 32px;
-    margin: 0 1em;
+    vertical-align: middle;
+    width: 2.5rem;
+    margin: 0 0.5em;
+    cursor: pointer;
   }
-  h1 {
-    font-size: 1.4rem;
-  }
-
-  h1 > a {
-    color: inherit;
-    font-size: inherit;
-    text-decoration: inherit;
+  &__logo-link {
+    transition: transform 0.2s cubic-bezier(0, 0.8, 0.13, 1);
+    &:hover {
+      transform: scale(1.1);
+    }
   }
 
   &__item {
     padding: 0 1em;
-    font-size: 1rem;
+    font-size: 1.25rem;
     text-decoration: none;
     transition: background ease 0.3s;
-
-    -webkit-app-region: no-drag;
   }
 
   &__item_hoverable:hover {
     background: #444;
   }
 
-  // button.item {
-  //   height: 34px;
-  //   line-height: 35px;
-  //   padding: 0 1em;
-  //   margin: 0 1em;
-  //   border: 0;
-  //   background-color: #00e7ff;
-  //   color: #333;
-  //   font-weight: 600;
-  //   border-radius: 2px;
-  //   cursor: pointer;
-  // }
-
-  // button.item:hover {
-  //   color: #000;
-  //   background-color: #ffffff;
-  // }
-
   &__separator {
     margin: 0 0.2em;
+  }
+
+  &__nav-link {
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+    z-index: 0;
+
+    &:after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      top: 70%;
+      left: -0.1em;
+      right: -0.1em;
+      bottom: 0;
+      transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
+      background-color: #00e7ff; // #ff1800;
+    }
+    &:hover:after {
+      top: 0%;
+    }
   }
 }
 </style>
