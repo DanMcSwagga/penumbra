@@ -176,7 +176,7 @@ export default {
   }
 }
 
-.dg {
+.dg.dg {
   font-family: Consolas;
   font-weight: 300;
   font-size: 12px;
