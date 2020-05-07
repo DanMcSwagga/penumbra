@@ -1,5 +1,5 @@
 <template>
-  <div class="gui-wrapper" :ref="'gui-wrapper'">
+  <div class="gui-wrapper" :ref="'gui-wrapper'" id="gui">
     <!-- Dat GUI generates here -->
   </div>
 </template>
@@ -152,7 +152,7 @@ export default {
 </script>
 
 <style lang="scss">
-.gui-wrapper {
+#gui#gui.gui-wrapper {
   position: absolute;
   z-index: 2;
   top: 0;
