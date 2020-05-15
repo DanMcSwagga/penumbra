@@ -70,7 +70,7 @@ export default {
 
       // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
-        if (file.name.match(ALLOW_FILE_TYPE)) {
+        if (file.name.toLowerCase().match(ALLOW_FILE_TYPE)) {
           // check if there has already been an allowed type file, e.g.
           // if (!rootFile) ...
           // else display error
