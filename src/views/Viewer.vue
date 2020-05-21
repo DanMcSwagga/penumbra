@@ -43,17 +43,24 @@ export default {
 
   mounted() {
     const dropzoneController = new SimpleDropzone(
-      // TODO: Change to refs:
-      // this.$refs['dropzone'],
-      // this.$refs['file-input'] // now is in a child component
+      // Unable to use refs due to file-input and drop-zone being
+      // on completely different component levels
       document.getElementById('dropzone'),
       document.getElementById('file-input')
     )
-    const self = this // TODO: not needed ?
+
     dropzoneController
-      .on('drop', ({ files }) => self.load(files))
-      .on('dropstart', () => self.$store.commit('ACTIVATE_SPINNER'))
-      .on('droperror', () => self.$store.commit('DEACTIVATE_SPINNER'))
+      .on('drop', ({ files }) => {
+        console.log('CHECKING DROPZONE FILESOBJ...')
+        console.log(files)
+        this.load(files)
+      })
+      .on('dropstart', () => {
+        this.$store.commit('ACTIVATE_SPINNER')
+      })
+      .on('droperror', () => {
+        this.$store.commit('DEACTIVATE_SPINNER')
+      })
   },
 
   methods: {
@@ -65,15 +72,14 @@ export default {
       console.log('Map of file(s)...')
       console.dir(fileMap)
 
-      // TODO: Check for file type here and add type to store
-      // which will determine what type of loader to use later
-
-      // Key: filePath | value: fileName
       Array.from(fileMap).forEach(([path, file]) => {
         if (file.name.match(ALLOW_FILE_TYPE)) {
-          // check if there has already been an allowed type file, e.g.
-          // if (!rootFile) ...
-          // else display error
+          // TODO: check if there has already been an allowed type file, e.g.
+          // if (!rootFile)
+          // // execute code
+          // else
+          // // "File entry point has been declared, can't parse multiple 3D files"
+
           rootFile = file
 
           // Get file type to determine model loader type later
@@ -107,6 +113,8 @@ export default {
       this.$store.dispatch('saveModelToHistory', modelData)
 
       this.isLoaded = true
+
+      console.log('LocalStorage Model History...')
       console.dir(JSON.parse(localStorage.modelHistory))
     },
 

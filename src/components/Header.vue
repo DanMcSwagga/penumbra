@@ -64,9 +64,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../media_mixins.scss';
+
 // TODO: improve SCSS using BEM
 .header {
   position: fixed;
+  width: 100%;
 
   display: flex;
   padding: 0 2em;
@@ -134,6 +137,10 @@ export default {
     &:hover:after {
       top: 0%;
     }
+  }
+
+  @include phone {
+    justify-content: center;
   }
 }
 </style>
