@@ -10,17 +10,13 @@
 
     <span class="header__separator">|</span>
 
-    <span class="header__item">
-      <!-- Create tutorial page -->
-      <router-link class="header__nav-link" to="/">Tutorial</router-link>
-    </span>
-
     <template v-if="isModelLoaded">
+      <span class="header__item" @click="toggleModalTutorial">
+        <span class="header__nav-link">Tutorial</span>
+      </span>
       <span class="header__separator">|</span>
-      <span class="header__item">
-        <router-link class="header__nav-link" to="/info">
-          Model Info
-        </router-link>
+      <span class="header__item" @click="toggleModalModelInfo">
+        <span class="header__nav-link">Model Info</span>
       </span>
     </template>
   </header>
@@ -44,7 +40,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import logoDark from '@/assets/logo_clean_dark.png'
 import logoLight from '@/assets/logo_clean_light.png'
 
@@ -54,10 +50,19 @@ export default {
   data: () => ({ logoDark }),
 
   computed: {
-    ...mapState(['fileMap']),
+    ...mapState(['fileMap', 'showModelInfo', 'showTutorial']),
 
     isModelLoaded() {
       return this.fileMap
+    }
+  },
+
+  methods: {
+    toggleModalTutorial() {
+      this.$store.commit('TOGGLE_MODAL_TUTORIAL')
+    },
+    toggleModalModelInfo() {
+      this.$store.commit('TOGGLE_MODAL_MODEL_INFO')
     }
   }
 }
@@ -118,6 +123,7 @@ export default {
   }
 
   &__nav-link {
+    cursor: pointer;
     color: inherit;
     text-decoration: none;
     position: relative;
