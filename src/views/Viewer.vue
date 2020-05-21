@@ -6,7 +6,7 @@
     </Modal>
     <!-- TODO: arrange as views/ModalModelInfo -->
     <Modal v-if="showModelInfo" @close="toggleModalModelInfo">
-      <p slot="body">This is some custom shiet</p>
+      <ModelInfo slot="body" />
     </Modal>
 
     <div class="dropzone" id="dropzone" :ref="'dropzone'">
@@ -27,7 +27,9 @@ import GUI from '@/components/GUI.vue'
 import Scene from '@/components/Scene/Scene.vue'
 import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/modals/Modal.vue'
+import ModelInfo from '@/components/modals/ModelInfo.vue'
+// import Tutorial from '@/components/modals/Tutorial.vue'
 
 import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
@@ -39,7 +41,9 @@ export default {
     Scene,
     UploadPlaceholder,
     Spinner,
-    Modal
+    Modal,
+    ModelInfo
+    // Tutorial
   },
 
   computed: {

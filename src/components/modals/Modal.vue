@@ -4,20 +4,18 @@
       <div class="modal__wrapper">
         <div class="modal__container">
           <div class="modal__header">
-            <slot name="header">default header</slot>
+            <div class="modal__close" @click="$emit('close')">
+              <span>Close X</span>
+            </div>
+            <slot name="header"></slot>
           </div>
 
           <div class="modal__body">
-            <slot name="body">default body</slot>
+            <slot name="body"></slot>
           </div>
 
           <div class="modal__footer">
-            <slot name="footer">
-              default footer
-              <button class="modal__default-button" @click="$emit('close')">
-                Close
-              </button>
-            </slot>
+            <slot name="footer"> </slot>
           </div>
         </div>
       </div>
@@ -49,27 +47,40 @@ export default {}
   }
 
   &__container {
-    width: 300px;
+    height: 80%;
+    width: 70%;
     margin: 0px auto;
     padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: center;
+
+    font-size: 1.2rem;
     background-color: #fff;
     border-radius: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
     transition: all 0.3s ease;
-    font-family: Helvetica, Arial, sans-serif;
   }
 
-  &__header h3 {
-    margin-top: 0;
-    color: #42b983;
+  &__header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
   }
 
   &__body {
     margin: 20px 0;
+    flex-grow: 1;
   }
 
-  &__default-button {
-    float: right;
+  &__close {
+    color: rgba(0, 0, 0, 0.9);
+    cursor: pointer;
+    &:hover {
+      color: rgba(0, 0, 0, 0.6);
+    }
   }
 }
 
