@@ -8,6 +8,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     showSpinner: false,
+    showModelInfo: false,
+    showTutorial: false,
 
     // File loading
     fileURL: '',
@@ -68,6 +70,13 @@ export default new Vuex.Store({
     SET: (state, { key, value }) => (state[key] = value),
 
     SET_SCENE_PROP: (state, { key, value }) => (state.sceneState[key] = value),
+
+    TOGGLE_MODAL_MODEL_INFO: state => {
+      state.showModelInfo = !state.showModelInfo
+    },
+    TOGGLE_MODAL_TUTORIAL: state => {
+      state.showTutorial = !state.showTutorial
+    },
 
     ACTIVATE_SPINNER: state => {
       state.showSpinner = true

@@ -7,9 +7,10 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
+
 /******************************************************************************
  * CSS Spinner
- *
  * http://tobiasahlin.com/spinkit/
  */
 .spinner {
@@ -21,8 +22,7 @@ export default {}
   margin: -20px;
   z-index: 1000;
 
-  // background-color: #333;
-  background-color: #ff0000;
+  background-color: $highlight-primary;
 
   border-radius: 100%;
   -webkit-animation: sk-scaleout 1s infinite ease-in-out;

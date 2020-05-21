@@ -44,6 +44,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
+@import '../media_mixins.scss';
+
 .about {
   // min-height: calc(100% - 8rem);
   min-height: 100%;
@@ -61,6 +64,10 @@ export default {
   background-repeat: no-repeat;
   background-attachment: fixed;
 
+  @include phone {
+    padding: 2rem 1rem;
+  }
+
   &__paragraph {
     font-size: 1.4rem;
     font-weight: 300;
@@ -69,7 +76,7 @@ export default {
   }
 
   &__heading {
-    font-size: 5rem;
+    font-size: 4rem;
   }
 
   &__link {
@@ -87,7 +94,7 @@ export default {
       right: -0.1em;
       bottom: 0;
       transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
-      background-color: #ff1800;
+      background-color: $highlight-primary;
     }
     &:hover:after {
       top: 0%;

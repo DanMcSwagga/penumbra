@@ -8,19 +8,13 @@
       <router-link class="header__nav-link" to="/about">About</router-link>
     </span>
 
-    <span class="header__separator">|</span>
-
-    <span class="header__item">
-      <!-- Create tutorial page -->
-      <router-link class="header__nav-link" to="/">Tutorial</router-link>
-    </span>
-
     <template v-if="isModelLoaded">
       <span class="header__separator">|</span>
-      <span class="header__item">
-        <router-link class="header__nav-link" to="/info">
-          Model Info
-        </router-link>
+      <span class="header__item" @click="toggleModalTutorial">
+        <span class="header__nav-link">Tutorial</span>
+      </span>
+      <span class="header__item" @click="toggleModalModelInfo">
+        <span class="header__nav-link">Model Info</span>
       </span>
     </template>
   </header>
@@ -44,7 +38,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import logoDark from '@/assets/logo_clean_dark.png'
 import logoLight from '@/assets/logo_clean_light.png'
 
@@ -54,19 +48,32 @@ export default {
   data: () => ({ logoDark }),
 
   computed: {
-    ...mapState(['fileMap']),
+    ...mapState(['fileMap', 'showModelInfo', 'showTutorial']),
 
     isModelLoaded() {
       return this.fileMap
+    }
+  },
+
+  methods: {
+    toggleModalTutorial() {
+      this.$store.commit('TOGGLE_MODAL_TUTORIAL')
+    },
+    toggleModalModelInfo() {
+      this.$store.commit('TOGGLE_MODAL_MODEL_INFO')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
+@import '../media_mixins.scss';
+
 // TODO: improve SCSS using BEM
 .header {
   position: fixed;
+  width: 100%;
 
   display: flex;
   padding: 0 2em;
@@ -78,10 +85,14 @@ export default {
   white-space: nowrap;
   z-index: 1;
 
+  @include phone {
+    justify-content: center;
+    background-color: $tertiary;
+  }
+
   &__item,
   &__separator {
-    color: #1e1e1e;
-    font-weight: 300;
+    color: $primary;
     line-height: 4rem;
     margin: 0;
   }
@@ -115,6 +126,7 @@ export default {
   }
 
   &__nav-link {
+    cursor: pointer;
     color: inherit;
     text-decoration: none;
     position: relative;
@@ -129,7 +141,7 @@ export default {
       right: -0.1em;
       bottom: 0;
       transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
-      background-color: #00e7ff; // #ff1800;
+      background-color: $highlight-secondary;
     }
     &:hover:after {
       top: 0%;

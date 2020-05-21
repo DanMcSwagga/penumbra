@@ -152,6 +152,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../palette.scss';
+
 #gui#gui.gui-wrapper {
   position: absolute;
   z-index: 2;
