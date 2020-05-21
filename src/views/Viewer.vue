@@ -1,5 +1,12 @@
 <template>
   <main id="viewer" class="viewer">
+    <Modal v-if="showTutorial" @close="toggleModalTutorial">
+      <Tutorial slot="body" />
+    </Modal>
+    <Modal v-if="showModelInfo" @close="toggleModalModelInfo">
+      <ModelInfo slot="body" />
+    </Modal>
+
     <div class="dropzone" id="dropzone" :ref="'dropzone'">
       <GUI :class="{ 'no-display': !isLoaded }" />
       <Scene :class="{ 'no-display': !isLoaded }" />
@@ -18,6 +25,9 @@ import GUI from '@/components/GUI.vue'
 import Scene from '@/components/Scene/Scene.vue'
 import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
+import Modal from '@/components/modals/Modal.vue'
+import ModelInfo from '@/components/modals/ModelInfo.vue'
+import Tutorial from '@/components/modals/Tutorial.vue'
 
 import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
@@ -28,11 +38,14 @@ export default {
     GUI,
     Scene,
     UploadPlaceholder,
-    Spinner
+    Spinner,
+    Modal,
+    ModelInfo,
+    Tutorial
   },
 
   computed: {
-    ...mapState(['showSpinner'])
+    ...mapState(['showSpinner', 'showModelInfo', 'showTutorial'])
   },
 
   data() {
@@ -64,6 +77,13 @@ export default {
   },
 
   methods: {
+    toggleModalTutorial() {
+      this.$store.commit('TOGGLE_MODAL_TUTORIAL')
+    },
+    toggleModalModelInfo() {
+      this.$store.commit('TOGGLE_MODAL_MODEL_INFO')
+    },
+
     load(fileMap) {
       let rootFile
       let rootPath

@@ -37,8 +37,6 @@ export default {
 .model-info {
   font-family: Menlo, Consolas, monospace;
 
-  padding-top: 100px; // TODO: remove, adaptify
-
   &__tree {
     padding-left: 1.5em;
     line-height: 1.5em;
