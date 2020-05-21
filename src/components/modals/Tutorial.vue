@@ -15,6 +15,8 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
+@import '../../palette.scss';
+
 .tutorial {
   width: 100%;
   display: flex;
@@ -40,8 +42,8 @@ export default {}
     font-weight: bold;
     cursor: pointer;
     &:hover {
-      color: #ff1800;
-      border-bottom: 2px solid red;
+      color: $highlight-primary;
+      border-bottom: 2px solid $highlight-primary;
     }
   }
 }

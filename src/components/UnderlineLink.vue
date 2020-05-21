@@ -14,6 +14,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
+
 .underline-link {
   color: inherit;
   text-decoration: none;
@@ -29,7 +31,7 @@ export default {
     right: -0.1em;
     bottom: 0;
     transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
-    background-color: #ff1800;
+    background-color: $highlight-primary;
   }
   &:hover:after {
     top: 0%;

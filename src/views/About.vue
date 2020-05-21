@@ -44,6 +44,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
+
 .about {
   // min-height: calc(100% - 8rem);
   min-height: 100%;
@@ -87,7 +89,7 @@ export default {
       right: -0.1em;
       bottom: 0;
       transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
-      background-color: #ff1800;
+      background-color: $highlight-primary;
     }
     &:hover:after {
       top: 0%;

@@ -28,6 +28,8 @@ export default {}
 </script>
 
 <style lang="scss" scoped>
+@import '../../palette.scss';
+
 .modal {
   &__mask {
     position: fixed;
@@ -57,6 +59,7 @@ export default {}
     align-content: center;
 
     font-size: 1.2rem;
+    background-color: $tertiary;
     background-color: #fff;
     border-radius: 2px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
@@ -76,10 +79,10 @@ export default {}
   }
 
   &__close {
-    color: rgba(0, 0, 0, 0.9);
+    color: $primary;
     cursor: pointer;
     &:hover {
-      color: rgba(0, 0, 0, 0.6);
+      color: $secondary;
     }
   }
 }

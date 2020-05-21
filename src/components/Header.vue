@@ -8,13 +8,11 @@
       <router-link class="header__nav-link" to="/about">About</router-link>
     </span>
 
-    <span class="header__separator">|</span>
-
     <template v-if="isModelLoaded">
+      <span class="header__separator">|</span>
       <span class="header__item" @click="toggleModalTutorial">
         <span class="header__nav-link">Tutorial</span>
       </span>
-      <span class="header__separator">|</span>
       <span class="header__item" @click="toggleModalModelInfo">
         <span class="header__nav-link">Model Info</span>
       </span>
@@ -69,6 +67,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../palette.scss';
 @import '../media_mixins.scss';
 
 // TODO: improve SCSS using BEM
@@ -88,8 +87,7 @@ export default {
 
   &__item,
   &__separator {
-    color: #1e1e1e;
-    font-weight: 300;
+    color: $primary;
     line-height: 4rem;
     margin: 0;
   }
@@ -138,7 +136,7 @@ export default {
       right: -0.1em;
       bottom: 0;
       transition: top 0.2s cubic-bezier(0, 0.8, 0.13, 1);
-      background-color: #00e7ff; // #ff1800;
+      background-color: $highlight-secondary;
     }
     &:hover:after {
       top: 0%;
