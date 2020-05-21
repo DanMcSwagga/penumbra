@@ -1,10 +1,8 @@
 <template>
   <main id="viewer" class="viewer">
-    <!-- TODO: arrange as views/ModalTutorial -->
     <Modal v-if="showTutorial" @close="toggleModalTutorial">
-      <p slot="body">This is some other shiet</p>
+      <Tutorial slot="body" />
     </Modal>
-    <!-- TODO: arrange as views/ModalModelInfo -->
     <Modal v-if="showModelInfo" @close="toggleModalModelInfo">
       <ModelInfo slot="body" />
     </Modal>
@@ -29,7 +27,7 @@ import UploadPlaceholder from '@/components/UploadPlaceholder.vue'
 import Spinner from '@/components/Spinner.vue'
 import Modal from '@/components/modals/Modal.vue'
 import ModelInfo from '@/components/modals/ModelInfo.vue'
-// import Tutorial from '@/components/modals/Tutorial.vue'
+import Tutorial from '@/components/modals/Tutorial.vue'
 
 import { ALLOW_FILE_TYPE } from '@/utils/supportedTypes.js'
 
@@ -42,8 +40,8 @@ export default {
     UploadPlaceholder,
     Spinner,
     Modal,
-    ModelInfo
-    // Tutorial
+    ModelInfo,
+    Tutorial
   },
 
   computed: {
