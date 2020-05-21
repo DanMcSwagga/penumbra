@@ -49,12 +49,11 @@ export default {}
 
 /******************************************************************************
  * Upload Button
- *
  * https://tympanus.net/Tutorials/CustomFileInputs/
  */
 
 .upload-btn {
-  margin-top: 2em;
+  margin-top: 1em;
   input {
     width: 0.1px;
     height: 0.1px;

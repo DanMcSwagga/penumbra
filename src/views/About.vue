@@ -45,6 +45,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../palette.scss';
+@import '../media_mixins.scss';
 
 .about {
   // min-height: calc(100% - 8rem);
@@ -63,6 +64,10 @@ export default {
   background-repeat: no-repeat;
   background-attachment: fixed;
 
+  @include phone {
+    padding: 2rem 1rem;
+  }
+
   &__paragraph {
     font-size: 1.4rem;
     font-weight: 300;
@@ -71,7 +76,7 @@ export default {
   }
 
   &__heading {
-    font-size: 5rem;
+    font-size: 4rem;
   }
 
   &__link {

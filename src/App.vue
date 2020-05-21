@@ -16,12 +16,15 @@ export default {
 </script>
 
 <style lang="scss">
+@import './palette.scss';
+
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
-  background: #f5f5f5;
+  // font-family: 'Roboto', sans-serif;
+  font-family: 'Montserrat', sans-serif;
+  background: $tertiary;
   height: 100%;
   // overflow: hidden; // TODO: implement at later stages
 }

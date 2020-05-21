@@ -85,6 +85,11 @@ export default {
   white-space: nowrap;
   z-index: 1;
 
+  @include phone {
+    justify-content: center;
+    background-color: $tertiary;
+  }
+
   &__item,
   &__separator {
     color: $primary;
@@ -141,10 +146,6 @@ export default {
     &:hover:after {
       top: 0%;
     }
-  }
-
-  @include phone {
-    justify-content: center;
   }
 }
 </style>
