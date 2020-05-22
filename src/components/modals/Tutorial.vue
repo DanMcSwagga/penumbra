@@ -2,21 +2,43 @@
   <div class="tutorial">
     <h3 class="tutorial__title">Bindings</h3>
 
-    <ul class="tutorial__control-list">
-      <li class="tutorial__control-item">Mouse</li>
-      <li class="tutorial__control-item">Touch</li>
-      <li class="tutorial__control-item">Keyboard</li>
-    </ul>
+    <tabs class="tutorial__control-tabs">
+      <tab class="tutorial__control-tab" name="Mouse" :selected="true">
+        <ControlTab :content="mouse" type="Mouse controls" />
+      </tab>
+      <tab class="tutorial__control-tab" name="Touch">
+        <ControlTab :content="touch" type="Touch controls" />
+      </tab>
+      <!-- <tab class="tutorial__control-tab" name="Keyboard">
+        <ControlTab :content="keyboard" type="Keyboard controls" />
+      </tab> -->
+    </tabs>
   </div>
 </template>
 
 <script>
-export default {}
+import ControlTab from '@/components/ControlTab.vue'
+import Tabs from '@/components/Tabs.vue'
+import Tab from '@/components/Tab.vue'
+
+import keyboard from '@/assets/controls/keyboard.jpg'
+import mouse from '@/assets/controls/mouse.jpg'
+import touch from '@/assets/controls/touch.jpg'
+
+export default {
+  name: 'tutorial',
+
+  components: {
+    ControlTab,
+    Tabs,
+    Tab
+  },
+
+  data: () => ({ keyboard, mouse, touch })
+}
 </script>
 
 <style lang="scss" scoped>
-@import '../../palette.scss';
-
 .tutorial {
   width: 100%;
   display: flex;
@@ -29,22 +51,9 @@ export default {}
     font-size: 3rem;
   }
 
-  &__control-list {
+  &__control-tabs {
     display: flex;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  &__control-item {
-    padding: 2px 6px;
-    margin: 0 14px;
-    font-weight: bold;
-    cursor: pointer;
-    &:hover {
-      color: $highlight-primary;
-      border-bottom: 2px solid $highlight-primary;
-    }
+    flex-direction: column;
   }
 }
 </style>
