@@ -19,7 +19,7 @@
     </template>
   </header>
 
-  <!-- TODO: IMPORTANT!!! improve structure using BEM -->
+  <!-- TODO: improve structure using BEM -->
 
   <!-- <header class="header">
     <nav class="header__navigation">
@@ -87,7 +87,7 @@ export default {
 
   @include phone {
     justify-content: center;
-    background-color: $tertiary;
+    background-color: rgba($color: $tertiary, $alpha: 0.3);
   }
 
   &__item,

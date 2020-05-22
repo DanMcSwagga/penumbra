@@ -119,7 +119,7 @@ export default {
       this.renderer.setClearColor(0xcccccc)
       this.renderer.setPixelRatio(window.devicePixelRatio)
       this.renderer.setSize(el.clientWidth, el.clientHeight)
-      // this.renderer.shadowMap.enabled = true //
+      this.renderer.shadowMap.enabled = true
 
       this.pmremGenerator = new THREE.PMREMGenerator(this.renderer)
       this.pmremGenerator.compileEquirectangularShader()
@@ -178,7 +178,9 @@ export default {
       // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
 
       // Controls
-      this.controls.handleResize() // TODO: Check if the name is valid
+      if (this.sceneState.fpsControls) {
+        this.controls.handleResize() // TODO: Check if the name is valid
+      }
     },
 
     /**
@@ -188,11 +190,6 @@ export default {
       // TODO: Determine if needed
       // this.reset()
 
-      // // Special check for STL objects
-      // const box =
-      //   this.fileType === 'stl'
-      //     ? new THREE.Box3()
-      //     : new THREE.Box3().setFromObject(object)
       const box = new THREE.Box3().setFromObject(object)
       const size = box.getSize(new THREE.Vector3()).length()
       const center = box.getCenter(new THREE.Vector3())

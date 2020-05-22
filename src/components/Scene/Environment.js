@@ -30,13 +30,15 @@ const getCubeMapTexture = (environment, pmremGenerator) => {
  * @param {Object} sceneState global scene state managed by VueX
  * @param {Object} store global VueX store
  */
-const updateEnvironment = (data, sceneState) => {
+const updateEnvironment = (data, sceneState, store) => {
   const environment = environments.filter(
     entry => entry.name === sceneState.environment
   )[0]
 
+  console.log('Starting update env')
   getCubeMapTexture(environment, data.pmremGenerator)
     .then(({ envMap }) => {
+      store.commit('DEACTIVATE_SPINNER')
       // TODO: Needed if we want custom colored background
       // if (
       // (!envMap || !sceneState.background) &&
@@ -50,7 +52,10 @@ const updateEnvironment = (data, sceneState) => {
       data.scene.environment = envMap
       data.scene.background = sceneState.background ? envMap : null
     })
-    .catch(error => console.log(error))
+    .catch(error => {
+      store.commit('DEACTIVATE_SPINNER')
+      console.log(error)
+    })
 }
 
 export default updateEnvironment

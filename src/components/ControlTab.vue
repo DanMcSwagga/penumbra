@@ -19,7 +19,7 @@ export default {
 .control-tab {
   &__image {
     // temporary styles while control tab content is still an image
-    height: 160px;
+    width: 100%;
     border-radius: 3rem;
   }
 }

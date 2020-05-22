@@ -93,7 +93,7 @@ export default {
       console.dir(fileMap)
 
       Array.from(fileMap).forEach(([path, file]) => {
-        if (file.name.match(ALLOW_FILE_TYPE)) {
+        if (file.name.toLowerCase().match(ALLOW_FILE_TYPE)) {
           // TODO: check if there has already been an allowed type file, e.g.
           // if (!rootFile)
           // // execute code
