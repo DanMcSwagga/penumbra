@@ -178,7 +178,9 @@ export default {
       // this.axesRenderer.setSize(axesEl.clientWidth, axesEl.clientHeight)
 
       // Controls
-      this.controls.handleResize() // TODO: Check if the name is valid
+      if (this.sceneState.fpsControls) {
+        this.controls.handleResize() // TODO: Check if the name is valid
+      }
     },
 
     /**
