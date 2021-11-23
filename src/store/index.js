@@ -7,6 +7,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    recordingIntervalID: null,
+    isRecording: false,
+    dateStartRecording: null,
+    loggedState: [],
+
     showSpinner: false,
     showModelInfo: false,
     showTutorial: false,
@@ -18,7 +23,6 @@ export default new Vuex.Store({
     fileType: '',
 
     // File history
-    // modelHistory: [],
     modelHistory: localStorage.modelHistory
       ? JSON.parse(localStorage.modelHistory)
       : [],
@@ -67,6 +71,26 @@ export default new Vuex.Store({
   },
 
   mutations: {
+    START_RECORDING: state => {
+      state.isRecording = true
+      state.dateStartRecording = Date.now()
+
+      const { fileURL, sceneState, dateStartRecording } = state
+      state.recordingIntervalID = setInterval(() => {
+        state.loggedState.push({
+          fileURL,
+          sceneState,
+          timeMs: Date.now() - dateStartRecording
+        })
+      }, 1000)
+    },
+    STOP_RECORDING: state => {
+      state.isRecording = false
+
+      clearInterval(state.recordingIntervalID)
+      state.loggedState = []
+    },
+
     SET: (state, { key, value }) => (state[key] = value),
 
     SET_SCENE_PROP: (state, { key, value }) => (state.sceneState[key] = value),
@@ -139,6 +163,14 @@ export default new Vuex.Store({
   },
 
   actions: {
+    startRecording({ commit }) {
+      console.log('⬤ STARTING RECORDING ⬤')
+      commit('START_RECORDING')
+    },
+    stopRecording({ commit }) {
+      console.log('◼ FINISHING RECORDING ◼')
+      commit('STOP_RECORDING')
+    },
     saveFileData({ commit }, fileData) {
       console.log('~~~ Saving file data to global state...')
       commit('SAVE_FILE_DATA', fileData)
