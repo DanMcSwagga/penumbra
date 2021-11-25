@@ -21,8 +21,10 @@ export default {
     ...mapState(['isRecording', 'loggedState'])
   },
 
-  data() {
-    return { hasRecordingStarted: false }
+  date() {
+    return {
+      recordingIntervalID: null
+    }
   },
 
   methods: {
@@ -47,9 +49,16 @@ export default {
     },
 
     record() {
-      this.isRecording
-        ? this.$store.dispatch('stopRecording')
-        : this.$store.dispatch('startRecording')
+      if (this.isRecording) {
+        clearInterval(this.recordingIntervalID)
+        this.$store.dispatch('stopRecording')
+      } else {
+        this.$store.dispatch('startRecording')
+
+        this.recordingIntervalID = setInterval(() => {
+          this.$store.commit('LOG_STATE')
+        }, 1000)
+      }
     }
   }
 }

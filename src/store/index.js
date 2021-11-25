@@ -7,7 +7,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    recordingIntervalID: null,
     isRecording: false,
     dateStartRecording: null,
     loggedState: [],
@@ -72,28 +71,39 @@ export default new Vuex.Store({
 
   mutations: {
     START_RECORDING: state => {
+      state.loggedState = []
       state.isRecording = true
       state.dateStartRecording = Date.now()
 
       const { fileURL, sceneState, dateStartRecording } = state
-      state.recordingIntervalID = setInterval(() => {
-        state.loggedState.push({
-          fileURL,
-          sceneState,
-          timeMs: Date.now() - dateStartRecording
-        })
-      }, 1000)
+      state.loggedState.push({
+        fileURL,
+        sceneState,
+        timeMs: Date.now() - dateStartRecording
+      })
     },
     STOP_RECORDING: state => {
       state.isRecording = false
-
-      clearInterval(state.recordingIntervalID)
-      state.loggedState = []
+    },
+    LOG_STATE: state => {
+      const { fileURL, sceneState, dateStartRecording } = state
+      console.log('CURRENT STATE PER LOG')
+      console.log({ axes: sceneState.axes })
+      state.loggedState.push({
+        fileURL,
+        sceneState,
+        timeMs: Date.now() - dateStartRecording
+      })
     },
 
     SET: (state, { key, value }) => (state[key] = value),
 
-    SET_SCENE_PROP: (state, { key, value }) => (state.sceneState[key] = value),
+    SET_SCENE_PROP: (state, { key, value }) => {
+      state.sceneState = {
+        ...state.sceneState,
+        [key]: value
+      }
+    },
 
     TOGGLE_MODAL_MODEL_INFO: state => {
       state.showModelInfo = !state.showModelInfo
@@ -142,11 +152,14 @@ export default new Vuex.Store({
     // GUI manipulations
     SET_DEFAULT_LIGHTING: state => {
       // TODO: extract to separate default constant
-      state.sceneState.ambientColor = 0xffffff
-      state.sceneState.directColor = 0xffffff
-      state.sceneState.ambientIntensity = 0.4
-      state.sceneState.directIntensity = 0.8 * Math.PI
-      state.sceneState.exposure = 1.0
+      state.scenestate = {
+        ...state.sceneState,
+        ambientColor: 0xffffff,
+        directColor: 0xffffff,
+        ambientIntensity: 0.4,
+        directIntensity: 0.8 * Math.PI,
+        exposure: 1.0
+      }
     },
 
     UPDATE_CAMERA: () => console.log('~~ updateCamera notifier'),
